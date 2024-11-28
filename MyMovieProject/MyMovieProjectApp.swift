@@ -9,9 +9,15 @@ import SwiftUI
 
 @main
 struct MyMovieProjectApp: App {
+    @AppStorage("alreadyLog") var alreadyLog : Bool = false
+    
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            if alreadyLog {
+                HomeView()
+            } else {
+                OnboardingView()
+            }
         }
     }
 }
