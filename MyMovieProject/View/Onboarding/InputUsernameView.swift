@@ -1,17 +1,18 @@
 import SwiftUI
 
 struct InputUsernameView: View {
-    @AppStorage("username") var usernameStorage : String = ""
-    @AppStorage("alreadyLog") var alreadyLog : Bool = false
+    
     
     @State var username : String = ""
     @Binding var goHome : Bool
     @Environment(\.dismiss) var dismiss
     
+    let onFinish : (String) -> Void
+    
     var body: some View {
         NavigationStack {
             VStack {
-                Text("Como devemos te chamar?")
+                Text("How can we call you?")
                 TextField("Caio", text: $username)
                     .padding()
                     .background(Color.gray.opacity(0.3))
@@ -20,11 +21,8 @@ struct InputUsernameView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button ("Pronto") {
-                        usernameStorage = username
-                        self.goHome = true
-                        self.alreadyLog = true
-                        dismiss()
+                    Button ("Done") {
+                        onFinish(username)
                     }
                 }
             }
@@ -33,5 +31,7 @@ struct InputUsernameView: View {
 }
 
 #Preview {
-    InputUsernameView(goHome: .constant(false))
+    InputUsernameView(goHome: .constant(false)) {username in
+        print(username)
+    }
 }

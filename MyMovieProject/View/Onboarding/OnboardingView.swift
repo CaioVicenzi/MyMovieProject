@@ -2,8 +2,6 @@ import SwiftUI
 
 struct OnboardingView: View {
     @StateObject var vm = OnboardingViewModel()
-    @State var showInputUsername : Bool = false
-    @State var goHome : Bool = false
     
     var body: some View {
         VStack {
@@ -25,7 +23,7 @@ struct OnboardingView: View {
             Spacer()
             
             Button {
-                showInputUsername = true
+                vm.showInputUsername = true
             } label: {
                 Text("Começar")
                     .foregroundStyle(.white)
@@ -40,11 +38,13 @@ struct OnboardingView: View {
             
             Spacer()
         }
-        .sheet(isPresented: $showInputUsername) {
-            InputUsernameView(goHome: $goHome)
+        .sheet(isPresented: $vm.showInputUsername) {
+            InputUsernameView(goHome: $vm.goHome) {username in
+                vm.finishInput(username)
+            }
                 .presentationDetents([.fraction(0.2)])
         }
-        .navigationDestination(isPresented: $goHome) {
+        .navigationDestination(isPresented: $vm.goHome) {
             HomeView()
                 .navigationBarBackButtonHidden()
         }
