@@ -1,10 +1,3 @@
-//
-//  InputUsernameView.swift
-//  MyMovieProject
-//
-//  Created by Caio Marques on 28/11/24.
-//
-
 import SwiftUI
 
 struct InputUsernameView: View {
