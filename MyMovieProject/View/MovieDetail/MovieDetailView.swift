@@ -1,8 +1,13 @@
 import SwiftUI
 
 struct MovieDetailView: View {
-    @StateObject var vm = MovieDetailViewModel()
+    @ObservedObject var vm : MovieDetailViewModel
     let movie : MovieDetailResponse
+    
+    init(movie: MovieDetailResponse) {
+        self.vm = MovieDetailViewModel(movieID: movie.id)
+        self.movie = movie
+    }
     
     var body: some View {
         VStack {
@@ -48,7 +53,13 @@ struct MovieDetailView: View {
                         
                         
                         ForEach(movie.genres, id: \.name) {gender in
-                            Text(gender.name)
+                            HStack {
+                                Image(systemName: "chevron.right")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 10)
+                                Text(gender.name)
+                            }
                         }
                         
                     }
@@ -57,7 +68,7 @@ struct MovieDetailView: View {
                 }
                 
                 Divider()
-                
+                /*
                 AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w1280/\(self.movie.posterPath)"), content: { returnedImage in
                     returnedImage
                         .resizable()
@@ -70,14 +81,71 @@ struct MovieDetailView: View {
                     ProgressView("Loading image")
                         .frame(height: 200)
                 }
+                 */
+                                
+                HStack {
+                    Text("Comentários")
+                        .font(.headline)
+                        .bold()
+                    Spacer()
+                }
+                .padding()
                 
-#warning("Fazer comentários")
-                Text("Comentários")
+                
+                VStack (alignment: .leading) {
+                    
+                    HStack {
+                        TextField("Eu gostei desse filme porque...", text: $vm.comment)
+                        
+                        if !vm.comment.isEmpty {
+                            Button {
+                                Task {
+                                    await vm.saveComment()
+                                }
+                            }label: {
+                                Image(systemName: "paperplane.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 30)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                
+                Divider()
+                
+                if vm.comments.isEmpty {
+                    Text("Ainda não temos nenhum comentário associado a esse filme...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding()
+                } else {
+                    ForEach(vm.comments, id: \.title) { comment in
+                        RoundedRectangle(cornerRadius: 10)
+                            .frame(height: 40)
+                            .foregroundStyle(Color.gray.opacity(0.2))
+                            .overlay(alignment: .leading) {
+                                Text(comment.title)
+                                    .padding(.leading)
+                            }
+                            .padding(.horizontal)
+                        
+                    }
+                }
+                
+                
+                
                 
                 Spacer()
             }
         }
         .ignoresSafeArea()
+        .onAppear {
+            Task {
+                await vm.fetchComments()
+            }
+        }
     }
 }
 

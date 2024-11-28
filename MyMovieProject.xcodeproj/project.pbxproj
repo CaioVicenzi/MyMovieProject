@@ -6,6 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FD4280E42CF8BCDD00C714E1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280E32CF8BCDD00C714E1 /* FirebaseAnalytics */; };
+		FD4280E62CF8BCDD00C714E1 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280E52CF8BCDD00C714E1 /* FirebaseAnalyticsOnDeviceConversion */; };
+		FD4280E82CF8BCDD00C714E1 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280E72CF8BCDD00C714E1 /* FirebaseAnalyticsWithoutAdIdSupport */; };
+		FD4280EA2CF8BCDD00C714E1 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280E92CF8BCDD00C714E1 /* FirebaseAppCheck */; };
+		FD4280EC2CF8BCDD00C714E1 /* FirebaseAppDistribution-Beta in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280EB2CF8BCDD00C714E1 /* FirebaseAppDistribution-Beta */; };
+		FD4280EF2CF8C6CC00C714E1 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280EE2CF8C6CC00C714E1 /* FirebaseFirestore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		FD42808B2CF80F3600C714E1 /* MyMovieProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyMovieProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +45,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FD4280EA2CF8BCDD00C714E1 /* FirebaseAppCheck in Frameworks */,
+				FD4280E42CF8BCDD00C714E1 /* FirebaseAnalytics in Frameworks */,
+				FD4280EC2CF8BCDD00C714E1 /* FirebaseAppDistribution-Beta in Frameworks */,
+				FD4280E82CF8BCDD00C714E1 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
+				FD4280E62CF8BCDD00C714E1 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
+				FD4280EF2CF8C6CC00C714E1 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +61,7 @@
 			isa = PBXGroup;
 			children = (
 				FD42808D2CF80F3600C714E1 /* MyMovieProject */,
+				FD4280ED2CF8C6CC00C714E1 /* Frameworks */,
 				FD42808C2CF80F3600C714E1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +72,13 @@
 				FD42808B2CF80F3600C714E1 /* MyMovieProject.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		FD4280ED2CF8C6CC00C714E1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -78,6 +101,12 @@
 			);
 			name = MyMovieProject;
 			packageProductDependencies = (
+				FD4280E32CF8BCDD00C714E1 /* FirebaseAnalytics */,
+				FD4280E52CF8BCDD00C714E1 /* FirebaseAnalyticsOnDeviceConversion */,
+				FD4280E72CF8BCDD00C714E1 /* FirebaseAnalyticsWithoutAdIdSupport */,
+				FD4280E92CF8BCDD00C714E1 /* FirebaseAppCheck */,
+				FD4280EB2CF8BCDD00C714E1 /* FirebaseAppDistribution-Beta */,
+				FD4280EE2CF8C6CC00C714E1 /* FirebaseFirestore */,
 			);
 			productName = MyMovieProject;
 			productReference = FD42808B2CF80F3600C714E1 /* MyMovieProject.app */;
@@ -107,6 +136,9 @@
 			);
 			mainGroup = FD4280822CF80F3600C714E1;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FD4280E22CF8BCDD00C714E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FD42808C2CF80F3600C714E1 /* Products */;
 			projectDirPath = "";
@@ -349,6 +381,50 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FD4280E22CF8BCDD00C714E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FD4280E32CF8BCDD00C714E1 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FD4280E22CF8BCDD00C714E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		FD4280E52CF8BCDD00C714E1 /* FirebaseAnalyticsOnDeviceConversion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FD4280E22CF8BCDD00C714E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsOnDeviceConversion;
+		};
+		FD4280E72CF8BCDD00C714E1 /* FirebaseAnalyticsWithoutAdIdSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FD4280E22CF8BCDD00C714E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsWithoutAdIdSupport;
+		};
+		FD4280E92CF8BCDD00C714E1 /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FD4280E22CF8BCDD00C714E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
+		};
+		FD4280EB2CF8BCDD00C714E1 /* FirebaseAppDistribution-Beta */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FD4280E22CF8BCDD00C714E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = "FirebaseAppDistribution-Beta";
+		};
+		FD4280EE2CF8C6CC00C714E1 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FD4280E22CF8BCDD00C714E1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FD4280832CF80F3600C714E1 /* Project object */;
 }

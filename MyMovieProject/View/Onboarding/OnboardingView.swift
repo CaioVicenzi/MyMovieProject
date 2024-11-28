@@ -14,7 +14,7 @@ struct OnboardingView: View {
             Spacer()
             Spacer()
             
-            functionalityDescriber("Descubra novos filmes", description: "Procure filmes que te interessam na nossa lista", image: "list.bullet.rectangle", color: .blue)
+            functionalityDescriber("Descubra novos filmes", description: "Procure filmes que te interessam na nossa lista", image: "movieclapper", color: .blue)
             functionalityDescriber("Adicione comentários", description: "Coloque as suas ideias sobre um filme para você ver depois", image: "text.page", color: .yellow)
             functionalityDescriber("Favorite filmes", description: "Marque os seus filmes favoritos com uma estrelinha!", image: "star.fill", color: .purple)
             
