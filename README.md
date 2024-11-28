@@ -1,7 +1,7 @@
 # MyMovie Project
 
 ## Description
-This iOS app provides a list of movies for the users, where they can favorite, add reviews and learn more about their favorite movies.The goal is to provide the user with a simple, interactive and elegant experience.
+This iOS app provides a list of movies for the users, where they can favorite, add reviews and learn more about their favorite movies. The goal is to provide the user with a simple, interactive and elegant experience.
 
 ## Technology Stack
 - **Framework**: SwiftUI
