@@ -11,11 +11,11 @@ struct MovieDetailResponse: Codable {
     let releaseDate: String
     let runtime: Int
     let status, tagline, title: String
-
+    
     var imageUrl: URL? {
-        URL(string: "https://image.tmdb.org/t/p/w500/ktxq0LYgl41I2DUn49TYIaS9dZR.jpg")
+        URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)")
     }
-
+    
     enum CodingKeys: String, CodingKey {
         case adult
         case backdropPath = "backdrop_path"
@@ -29,4 +29,8 @@ struct MovieDetailResponse: Codable {
         case runtime
         case status, tagline, title
     }
+}
+
+struct Genre: Codable {
+    let name: String
 }
