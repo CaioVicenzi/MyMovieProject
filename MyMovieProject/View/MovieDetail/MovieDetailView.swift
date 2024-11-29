@@ -126,8 +126,13 @@ struct MovieDetailView: View {
                             .frame(height: 40)
                             .foregroundStyle(Color.gray.opacity(0.2))
                             .overlay(alignment: .leading) {
-                                Text(comment.title)
-                                    .padding(.leading)
+                                VStack {
+                                    Text(comment.username)
+                                        .bold()
+                                    Text(comment.title)
+                                }
+                                .padding(.leading)
+                                
                             }
                             .padding(.horizontal)
                         
