@@ -40,7 +40,6 @@ struct HomeView: View {
                             }
                         }
                         
-                        // Exibe um indicador de carregamento no final da lista
                         if vm.isLoading {
                             ProgressView()
                                 .frame(maxWidth: .infinity, alignment: .center)

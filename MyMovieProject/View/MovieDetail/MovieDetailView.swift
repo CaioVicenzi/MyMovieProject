@@ -68,21 +68,7 @@ struct MovieDetailView: View {
                 }
                 
                 Divider()
-                /*
-                AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w1280/\(self.movie.posterPath)"), content: { returnedImage in
-                    returnedImage
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: UIScreen.main.bounds.size.width - 40)
-                        .padding()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                        
-                }) {
-                    ProgressView("Loading image")
-                        .frame(height: 200)
-                }
-                 */
-                                
+           
                 HStack {
                     Text("Comentários")
                         .font(.headline)
