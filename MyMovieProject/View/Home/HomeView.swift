@@ -7,6 +7,9 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             VStack {
+                Button ("Sign out") {
+                    vm.signOut()
+                }
                 if vm.isLoading && vm.movies.isEmpty {
                     ProgressView("Carregando filmes...")
                 } else if let errorMessage = vm.errorMessage, vm.movies.isEmpty {
@@ -55,6 +58,7 @@ struct HomeView: View {
             .onAppear {
                 if vm.movies.isEmpty {
                     vm.fetchPopularMovies()
+                    vm.getUser()
                 }
             }
         }

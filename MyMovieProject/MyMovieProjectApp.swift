@@ -1,23 +1,23 @@
-//
-//  MyMovieProjectApp.swift
-//  MyMovieProject
-//
-//  Created by Caio Marques on 27/11/24.
-//
-
 import SwiftUI
+import SwiftUI
+import FirebaseCore
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+    return true
+  }
+}
 
 @main
 struct MyMovieProjectApp: App {
     @AppStorage("alreadyLog") var alreadyLog : Bool = false
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     var body: some Scene {
         WindowGroup {
-            if alreadyLog {
-                HomeView()
-            } else {
-                OnboardingView()
-            }
+            LoadingView()
         }
     }
 }
