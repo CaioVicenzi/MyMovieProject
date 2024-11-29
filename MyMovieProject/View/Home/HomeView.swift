@@ -7,32 +7,45 @@ struct HomeView: View {
     var body: some View {
         NavigationView {
             VStack {
-                if vm.isLoading {
+                if vm.isLoading && vm.movies.isEmpty {
                     ProgressView("Carregando filmes...")
-                } else if let errorMessage = vm.errorMessage {
+                } else if let errorMessage = vm.errorMessage, vm.movies.isEmpty {
                     Text("Erro: \(errorMessage)")
                         .foregroundColor(.red)
                         .multilineTextAlignment(.center)
                 } else {
-                    List(vm.movies, id: \.id) { movie in
-                        HStack {
-                            AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w200\(movie.posterPath)")) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 50, height: 75)
-                                    .cornerRadius(8)
-                            } placeholder: {
-                                ProgressView()
+                    List {
+                        ForEach(vm.movies, id: \.id) { movie in
+                            HStack {
+                                AsyncImage(url: URL(string: "https://image.tmdb.org/t/p/w200\(movie.posterPath)")) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 50, height: 75)
+                                        .cornerRadius(8)
+                                } placeholder: {
+                                    ProgressView()
+                                }
+                                
+                                VStack(alignment: .leading) {
+                                    Text(movie.title)
+                                        .font(.headline)
+                                    Text(movie.releaseDate)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
                             }
-                            
-                            VStack(alignment: .leading) {
-                                Text(movie.title)
-                                    .font(.headline)
-                                Text(movie.releaseDate)
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
+                        }
+                        
+                        // Exibe um indicador de carregamento no final da lista
+                        if vm.isLoading {
+                            ProgressView()
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else if !vm.movies.isEmpty {
+                            Color.clear
+                                .onAppear {
+                                    vm.fetchPopularMovies()
+                                }
                         }
                     }
                     .listStyle(InsetGroupedListStyle())
@@ -40,12 +53,10 @@ struct HomeView: View {
             }
             .navigationTitle("Bem-vindo, \(usernameStorage)!")
             .onAppear {
-                vm.fetchPopularMovies()
+                if vm.movies.isEmpty {
+                    vm.fetchPopularMovies()
+                }
             }
         }
     }
-}
-
-#Preview {
-    HomeView()
 }

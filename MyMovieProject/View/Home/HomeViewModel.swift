@@ -5,27 +5,33 @@ class HomeViewModel: ObservableObject {
     @Published var movies: [ApiResult] = [] // Armazena a lista de filmes populares
     @Published var isLoading: Bool = false  // Indica se a API está carregando
     @Published var errorMessage: String?    // Armazena mensagens de erro, se houver
+    private var currentPage: Int = 1        // Página atual
+    private var hasMorePages: Bool = true   // Indica se há mais páginas para carregar
     
     private let api = MovieApi() // Instância da classe API
     
     // Método para buscar filmes populares
     func fetchPopularMovies() {
-        isLoading = true // Inicia o carregamento
-        errorMessage = nil // Reseta a mensagem de erro
+        guard !isLoading && hasMorePages else { return } // Evita carregamentos simultâneos ou desnecessários
+        isLoading = true
+        errorMessage = nil
         
         Task {
             do {
-                // Configura a ação para listar filmes populares (página 1)
-                let action = MovieApiAction<ListMovieResponse>.list(page: 1)
-                // Faz a requisição e decodifica os resultados
+                // Configura a ação para listar filmes populares na página atual
+                let action = MovieApiAction<ListMovieResponse>.list(page: currentPage)
                 let response = try await api.makeRequest(action: action)
-                // Atualiza a lista de filmes
-                movies = response.results
+                
+                // Adiciona novos filmes à lista
+                movies.append(contentsOf: response.results)
+                
+                // Atualiza o estado de carregamento
+                hasMorePages = !response.results.isEmpty // Se a resposta estiver vazia, não há mais páginas
+                currentPage += 1
             } catch {
-                // Captura erros e atualiza a mensagem de erro
                 errorMessage = error.localizedDescription
             }
-            isLoading = false // Finaliza o carregamento
+            isLoading = false
         }
     }
 }
