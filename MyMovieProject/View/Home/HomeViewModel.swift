@@ -12,15 +12,7 @@ class HomeViewModel: ObservableObject {
     
     private let api = MovieApi()
 
-    func signOut () {
-        do {
-            try Auth.auth().signOut()
-        } catch {
-            print("[ERROR] Couldn't sign out")
-        }
-    }
-
-    func getUser () {
+    func getUser() {
         let currentuser = Auth.auth().currentUser
         
         print("[DEBUG] the user is \(currentuser?.email ?? "[ERROR] no email")")

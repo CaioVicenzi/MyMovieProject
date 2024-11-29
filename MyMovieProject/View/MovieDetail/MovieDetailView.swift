@@ -109,10 +109,10 @@ struct MovieDetailView: View {
                 } else {
                     ForEach(vm.comments, id: \.title) { comment in
                         RoundedRectangle(cornerRadius: 10)
-                            .frame(height: 40)
+                            .frame(height: 60)
                             .foregroundStyle(Color.gray.opacity(0.2))
                             .overlay(alignment: .leading) {
-                                VStack {
+                                VStack (alignment: .leading) {
                                     Text(comment.username)
                                         .bold()
                                     Text(comment.title)

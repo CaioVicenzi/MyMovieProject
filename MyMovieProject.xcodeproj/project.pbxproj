@@ -6,15 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXContainerItemProxy section */
-		B8ED57A02CF8986800626209 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = FD4280832CF80F3600C714E1 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = FD42808A2CF80F3600C714E1;
-			remoteInfo = MyMovieProject;
-		};
-/* End PBXContainerItemProxy section */
 /* Begin PBXBuildFile section */
 		FD4280E42CF8BCDD00C714E1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280E32CF8BCDD00C714E1 /* FirebaseAnalytics */; };
 		FD4280E62CF8BCDD00C714E1 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280E52CF8BCDD00C714E1 /* FirebaseAnalyticsOnDeviceConversion */; };
@@ -24,6 +15,16 @@
 		FD4280EF2CF8C6CC00C714E1 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280EE2CF8C6CC00C714E1 /* FirebaseFirestore */; };
 		FD4280F62CF8F3EE00C714E1 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = FD4280F52CF8F3EE00C714E1 /* FirebaseAuth */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B8ED57A02CF8986800626209 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FD4280832CF80F3600C714E1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FD42808A2CF80F3600C714E1;
+			remoteInfo = MyMovieProject;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		B8ED579C2CF8986800626209 /* SourceUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SourceUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -419,6 +420,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -453,6 +455,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
