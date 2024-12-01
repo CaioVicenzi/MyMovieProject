@@ -17,19 +17,29 @@ struct MovieDetailView: View {
                 .offset(y: -10)
                 .overlay (alignment: .leading){
                     VStack (alignment: .leading){
-                        
                         Spacer()
                         Spacer()
                         Text(movie.title)
                             .font(.title)
                             .bold()
                         Spacer()
-                        Text("Popularity: \(String(format: "%.2f", movie.popularity))")
+                        HStack {
+                            Text("Popularity: \(String(format: "%.2f", movie.popularity))")
+                            Spacer()
+                            Button {
+                                vm.likeButtonPressed()
+                            } label: {
+                                VStack {
+                                    Image(systemName: vm.didUserLiked ? "heart.fill" : "heart")
+                                    Text(vm.likes.description)
+                                }
+                            }
+                            .disabled(vm.waiting)
+                        }
+                        .padding(.trailing)
                         Spacer()
                     }
                     .padding()
-
-                    
                 }
             
             ScrollView {
@@ -43,15 +53,11 @@ struct MovieDetailView: View {
                 }
                 .padding()
                 
-                
                 HStack {
                     VStack (alignment: .leading) {
-                        
                         Text("Genders")
                             .bold()
                             .padding(.bottom)
-                        
-                        
                         ForEach(movie.genres, id: \.name) {gender in
                             HStack {
                                 Image(systemName: "chevron.right")
@@ -61,7 +67,6 @@ struct MovieDetailView: View {
                                 Text(gender.name)
                             }
                         }
-                        
                     }
                     .padding(.horizontal)
                     Spacer()
@@ -76,7 +81,6 @@ struct MovieDetailView: View {
                     Spacer()
                 }
                 .padding()
-                
                 
                 VStack (alignment: .leading) {
                     
@@ -121,47 +125,29 @@ struct MovieDetailView: View {
                                 
                             }
                             .padding(.horizontal)
-                        
                     }
                 }
-                
-                
-                
-                
                 Spacer()
             }
         }
         .ignoresSafeArea()
         .onAppear {
             Task {
+                self.vm.waiting = true
                 await vm.fetchComments()
+                await vm.fetchLikes()
+                self.vm.waiting = false
             }
         }
+        .overlay {
+            if vm.waiting {
+                ProgressView()
+            }
+        }
+        .allowsHitTesting(!self.vm.waiting)
     }
 }
 
 #Preview {
     MovieDetailView(movie: MovieDetailResponse(adult: false, backdropPath: "/3V4kLQg0kSqPLctI5ziYWabAZYF.jpg", genres: [Genre(name: "Comédia"), Genre(name: "Ação")], id: 912649, imdbID: "", originalLanguage: "en", originalTitle: "Venom: The Last Dance", overview: "Eddie and Venom are on the run. Hunted by both of their worlds and with the net closing in, the duo are forced into a devastating decision that will bring the curtains down on Venom and Eddie's last dance.", popularity: 2767.29, posterPath: "/aosm8NMQ3UyoBVpSxyimorCQykC.jpg", releaseDate: "2024-10-22", runtime: 0, status: "", tagline: "", title: "Venom: The Last Dance"))
-    
-    /*
-     "adult": false,
-     "backdrop_path": "/3V4kLQg0kSqPLctI5ziYWabAZYF.jpg",
-     "genre_ids": [
-       878,
-       28,
-       12
-     ],
-     "id": 912649,
-     "original_language": "en",
-     "original_title": "Venom: The Last Dance",
-     "overview": "Eddie and Venom are on the run. Hunted by both of their worlds and with the net closing in, the duo are forced into a devastating decision that will bring the curtains down on Venom and Eddie's last dance.",
-     "popularity": 2767.29,
-     "poster_path": "/aosm8NMQ3UyoBVpSxyimorCQykC.jpg",
-     "release_date": "2024-10-22",
-     "title": "Venom: The Last Dance",
-     "video": false,
-     "vote_average": 6.399,
-     "vote_count": 915
-   },
-     */
 }
