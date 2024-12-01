@@ -30,11 +30,30 @@ struct LoginView: View {
                         .frame(height: 55)
                         .background(Color.accentColor)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                        .padding()
+                        .padding(.horizontal)
+                        .padding(.top)
                 }
-                NavigationLink ("Create an account") {
+                
+                Button {
+                    //vm.loginAnounymously()
+                } label: {
+                    Text("Log in anonymously")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 55)
+                        .background(Color.secondary)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .padding(.horizontal)
+                        .padding(.bottom)
+                }
+                NavigationLink("Create an account") {
                     SignInView()
                         .navigationBarBackButtonHidden()
+                }
+                
+                NavigationLink("Reset password") {
+                    ResetPasswordView()
                 }
                 
                 Spacer()

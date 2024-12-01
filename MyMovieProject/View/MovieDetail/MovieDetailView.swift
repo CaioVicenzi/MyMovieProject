@@ -23,11 +23,23 @@ struct MovieDetailView: View {
                             .font(.title)
                             .bold()
                         Spacer()
-                        Text("Popularity: \(String(format: "%.2f", movie.popularity))")
+                        HStack {
+                            Text("Popularity: \(String(format: "%.2f", movie.popularity))")
+                            Spacer()
+                            Button {
+                                vm.likeButtonPressed()
+                            } label: {
+                                VStack {
+                                    Image(systemName: vm.didUserLiked ? "heart.fill" : "heart")
+                                    Text(vm.likes.description)
+                                }
+                            }
+                            .disabled(vm.waiting)
+                        }
+                        .padding(.trailing)
                         Spacer()
                     }
                     .padding()
-                    
                 }
             
             ScrollView {
@@ -100,10 +112,10 @@ struct MovieDetailView: View {
                 } else {
                     ForEach(vm.comments, id: \.title) { comment in
                         RoundedRectangle(cornerRadius: 10)
-                            .frame(height: 40)
+                            .frame(height: 60)
                             .foregroundStyle(Color.gray.opacity(0.2))
                             .overlay(alignment: .leading) {
-                                VStack {
+                                VStack (alignment: .leading) {
                                     Text(comment.username)
                                         .bold()
                                     Text(comment.title)
@@ -119,9 +131,18 @@ struct MovieDetailView: View {
         .ignoresSafeArea()
         .onAppear {
             Task {
+                self.vm.waiting = true
                 await vm.fetchComments()
+                await vm.fetchLikes()
+                self.vm.waiting = false
             }
         }
+        .overlay {
+            if vm.waiting {
+                ProgressView()
+            }
+        }
+        .allowsHitTesting(!self.vm.waiting)
     }
 }
 
