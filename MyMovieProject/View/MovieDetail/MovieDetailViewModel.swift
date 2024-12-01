@@ -2,18 +2,18 @@ import Foundation
 import FirebaseFirestore
 import FirebaseAuth
 
-class MovieDetailViewModel : ObservableObject {
-    let movieID : Int
+class MovieDetailViewModel: ObservableObject {
+    let movieID: Int
     let db = Firestore.firestore()
-    @Published var comments : [Comment] = []
-    @Published var comment : String = ""
+    @Published var comments: [Comment] = []
+    @Published var comment: String = ""
     
     init(movieID: Int) {
         self.movieID = movieID
     }
     
     func fetchComments () async  {
-        var comments : [Comment] = []
+        var comments: [Comment] = []
         
         do {
             let argument = try await db.collection("comment").getDocuments()
@@ -26,7 +26,6 @@ class MovieDetailViewModel : ObservableObject {
                 if movieID == self.movieID {
                     comments.append(Comment(title: content, moovieID: movieID, username: username))
                 }
-                
             }
         } catch {
             print("[ERROR] Couldn't fetch comment data: \(error)")
@@ -34,7 +33,7 @@ class MovieDetailViewModel : ObservableObject {
         self.comments = comments
     }
     
-    func saveComment () async {
+    func saveComment() async {
         do {
             let userInfo = getCurrentUser()
             
@@ -50,7 +49,6 @@ class MovieDetailViewModel : ObservableObject {
         } catch {
             print("[ERROR] Couldn't add document in database...")
         }
-        
     }
     
     func getCurrentUser () -> (String, String) {

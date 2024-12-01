@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct MovieDetailView: View {
-    @ObservedObject var vm : MovieDetailViewModel
-    let movie : MovieDetailResponse
+    @ObservedObject var vm: MovieDetailViewModel
+    let movie: MovieDetailResponse
     
     init(movie: MovieDetailResponse) {
         self.vm = MovieDetailViewModel(movieID: movie.id)
@@ -15,9 +15,8 @@ struct MovieDetailView: View {
                 .foregroundStyle(Color.darkPurple)
                 .frame(height: 260)
                 .offset(y: -10)
-                .overlay (alignment: .leading){
-                    VStack (alignment: .leading){
-                        
+                .overlay(alignment: .leading) {
+                    VStack(alignment: .leading) {
                         Spacer()
                         Spacer()
                         Text(movie.title)
@@ -28,13 +27,11 @@ struct MovieDetailView: View {
                         Spacer()
                     }
                     .padding()
-
                     
                 }
             
             ScrollView {
-                
-                VStack (alignment: .leading) {
+                VStack(alignment: .leading) {
                     Text("Description:")
                         .bold()
                         .padding(.vertical)
@@ -42,15 +39,12 @@ struct MovieDetailView: View {
                     Text(movie.overview)
                 }
                 .padding()
-                
-                
+            
                 HStack {
                     VStack (alignment: .leading) {
-                        
                         Text("Genders")
                             .bold()
                             .padding(.bottom)
-                        
                         
                         ForEach(movie.genres, id: \.name) {gender in
                             HStack {
@@ -61,14 +55,13 @@ struct MovieDetailView: View {
                                 Text(gender.name)
                             }
                         }
-                        
                     }
                     .padding(.horizontal)
                     Spacer()
                 }
                 
                 Divider()
-           
+                
                 HStack {
                     Text("Comentários")
                         .font(.headline)
@@ -77,9 +70,7 @@ struct MovieDetailView: View {
                 }
                 .padding()
                 
-                
-                VStack (alignment: .leading) {
-                    
+                VStack(alignment: .leading) {
                     HStack {
                         TextField("Eu gostei desse filme porque...", text: $vm.comment)
                         
@@ -88,7 +79,7 @@ struct MovieDetailView: View {
                                 Task {
                                     await vm.saveComment()
                                 }
-                            }label: {
+                            } label: {
                                 Image(systemName: "paperplane.circle.fill")
                                     .resizable()
                                     .scaledToFit()
@@ -118,16 +109,10 @@ struct MovieDetailView: View {
                                     Text(comment.title)
                                 }
                                 .padding(.leading)
-                                
                             }
                             .padding(.horizontal)
-                        
                     }
                 }
-                
-                
-                
-                
                 Spacer()
             }
         }
@@ -142,26 +127,4 @@ struct MovieDetailView: View {
 
 #Preview {
     MovieDetailView(movie: MovieDetailResponse(adult: false, backdropPath: "/3V4kLQg0kSqPLctI5ziYWabAZYF.jpg", genres: [Genre(name: "Comédia"), Genre(name: "Ação")], id: 912649, imdbID: "", originalLanguage: "en", originalTitle: "Venom: The Last Dance", overview: "Eddie and Venom are on the run. Hunted by both of their worlds and with the net closing in, the duo are forced into a devastating decision that will bring the curtains down on Venom and Eddie's last dance.", popularity: 2767.29, posterPath: "/aosm8NMQ3UyoBVpSxyimorCQykC.jpg", releaseDate: "2024-10-22", runtime: 0, status: "", tagline: "", title: "Venom: The Last Dance"))
-    
-    /*
-     "adult": false,
-     "backdrop_path": "/3V4kLQg0kSqPLctI5ziYWabAZYF.jpg",
-     "genre_ids": [
-       878,
-       28,
-       12
-     ],
-     "id": 912649,
-     "original_language": "en",
-     "original_title": "Venom: The Last Dance",
-     "overview": "Eddie and Venom are on the run. Hunted by both of their worlds and with the net closing in, the duo are forced into a devastating decision that will bring the curtains down on Venom and Eddie's last dance.",
-     "popularity": 2767.29,
-     "poster_path": "/aosm8NMQ3UyoBVpSxyimorCQykC.jpg",
-     "release_date": "2024-10-22",
-     "title": "Venom: The Last Dance",
-     "video": false,
-     "vote_average": 6.399,
-     "vote_count": 915
-   },
-     */
 }
