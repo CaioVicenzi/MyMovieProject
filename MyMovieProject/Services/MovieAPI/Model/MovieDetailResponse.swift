@@ -1,36 +1,30 @@
 import Foundation
 
-struct MovieDetailResponse: Codable {
-    let adult: Bool
-    let backdropPath: String
-    let genres: [Genre]
+struct MovieDetail: Codable {
     let id: Int
-    let imdbID, originalLanguage, originalTitle, overview: String
-    let popularity: Double
-    let posterPath: String
+    let title: String
+    let overview: String
     let releaseDate: String
-    let runtime: Int
-    let status, tagline, title: String
-    
-    var imageUrl: URL? {
-        URL(string: "https://image.tmdb.org/t/p/w500\(posterPath)")
-    }
+    let runtime: Int?
+    let genres: [Genre]
+    let voteAverage: Double
+    let voteCount: Int
+    let posterPath: String?
+    let backdropPath: String?
+    let homepage: String?
+    let tagline: String?
     
     enum CodingKeys: String, CodingKey {
-        case adult
-        case backdropPath = "backdrop_path"
-        case genres, id
-        case imdbID = "imdb_id"
-        case originalLanguage = "original_language"
-        case originalTitle = "original_title"
-        case overview, popularity
-        case posterPath = "poster_path"
+        case id, title, overview, runtime, genres, homepage, tagline
         case releaseDate = "release_date"
-        case runtime
-        case status, tagline, title
+        case voteAverage = "vote_average"
+        case voteCount = "vote_count"
+        case posterPath = "poster_path"
+        case backdropPath = "backdrop_path"
     }
 }
 
 struct Genre: Codable {
+    let id: Int
     let name: String
 }

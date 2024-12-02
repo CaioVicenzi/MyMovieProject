@@ -6,11 +6,16 @@ import FirebaseAuth
 class MovieDetailViewModel : ObservableObject {
     let movieID : Int
     let db = Firestore.firestore()
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
     @Published var comments : [Comment] = []
     @Published var comment : String = ""
     @Published var likes : Int = 0
     @Published var didUserLiked : Bool = false
     @Published var waiting : Bool = false
+    @Published var movieDetail: MovieDetail?
+    
+    private let api = MovieApi()
     
     init(movieID: Int) {
         self.movieID = movieID
@@ -169,5 +174,31 @@ class MovieDetailViewModel : ObservableObject {
         await fetchLikes()
         self.waiting = false
         
+    }
+    
+    func fetchDetailMovie() async {
+        let url = URL(string: "https://api.themoviedb.org/3/movie/\(movieID)")!
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+        let queryItems: [URLQueryItem] = [
+            URLQueryItem(name: "language", value: "en-US"),
+        ]
+        components.queryItems = components.queryItems.map { $0 + queryItems } ?? queryItems
+
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 10
+        request.allHTTPHeaderFields = [
+            "accept": "application/json",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYWRkMTc3ZWFlZWJjM2M1M2ZjZmM2OGNmY2ZiMmJkMyIsIm5iZiI6MTcxMDc4NDA4Ni43MDg5OTk5LCJzdWIiOiI2NWY4N2U1NmUxOTRiMDAxNjNiZjQxODYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.yMEfLcsm8uM6QgNiVq-TiNEvcDUWl3sqfxq2Vpe9V3E"
+        ]
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let decodedData = try JSONDecoder().decode(MovieDetail.self, from: data)
+            self.movieDetail = decodedData
+        } catch {
+            print("[ERROR] Failed to fetch movie details: \(error)")
+            self.errorMessage = "Failed to load movie details. Please try again."
+        }
     }
 }
