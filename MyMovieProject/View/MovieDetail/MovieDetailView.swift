@@ -78,8 +78,6 @@ struct MovieDetailView: View {
                         .padding(.top)
                     }
                     .padding()
-                } else {
-                    ProgressView()
                 }
             }
     }
@@ -126,7 +124,7 @@ struct MovieDetailView: View {
                 .bold()
             ForEach(genres, id: \.name) { genre in
                 HStack {
-                    Image(systemName: "chevron.right")
+                    Image(systemName: "play.fill")
                         .resizable()
                         .scaledToFit()
                         .frame(height: 10)
