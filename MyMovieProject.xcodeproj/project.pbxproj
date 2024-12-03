@@ -39,6 +39,14 @@
 			);
 			target = FD42808A2CF80F3600C714E1 /* MyMovieProject */;
 		};
+		FDE394C02CFF8A0E009E4904 /* Exceptions for "MyMovieProject" folder in "SourceUnitTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Manager/FavoriteManager.swift,
+				Model/Favorite.swift,
+			);
+			target = B8ED579B2CF8986800626209 /* SourceUnitTests */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -51,6 +59,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				B8ED583D2CF8A9EA00626209 /* Exceptions for "MyMovieProject" folder in "MyMovieProject" target */,
+				FDE394C02CFF8A0E009E4904 /* Exceptions for "MyMovieProject" folder in "SourceUnitTests" target */,
 			);
 			path = MyMovieProject;
 			sourceTree = "<group>";

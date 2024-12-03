@@ -3,6 +3,7 @@ import SwiftUI
 struct MovieDetailView: View {
     @StateObject private var vm: MovieDetailViewModel
     @EnvironmentObject private var loginStateService : LoginStateService
+    @Environment(\.modelContext) var modelContext
     
     init(movieID: Int) {
         _vm = StateObject(wrappedValue: MovieDetailViewModel(movieID: movieID))
@@ -29,11 +30,7 @@ struct MovieDetailView: View {
         .ignoresSafeArea()
         .background(Color(.systemBackground))
         .onAppear {
-            Task {
-                await vm.fetchComments()
-                await vm.fetchLikes()
-                await vm.fetchDetailMovie()
-            }
+            vm.onLoadingView(modelContext)
         }
         .overlay {
             if vm.waiting {
@@ -50,6 +47,11 @@ struct MovieDetailView: View {
         }
         .fullScreenCover(isPresented: $vm.goLoginView) {
             LoginView()
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                favoriteButton
+            }
         }
     }
     
@@ -93,6 +95,17 @@ struct MovieDetailView: View {
             
             Text(vm.likes.description)
                 .foregroundColor(.white)
+        }
+    }
+    
+    private var favoriteButton: some View {
+        VStack {
+            Button {
+                vm.favoriteButtonPressed()
+            } label: {
+                Image(systemName: vm.isFavorited == true ? "star.fill" : "star")
+            }
+            .disabled(vm.waiting)
         }
     }
     

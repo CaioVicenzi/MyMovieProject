@@ -1,10 +1,12 @@
 import Foundation
 import FirebaseFirestore
 import FirebaseAuth
+import SwiftData
 
 @MainActor
 class MovieDetailViewModel : ObservableObject {
     let movieID : Int
+    var modelContext : ModelContext?
     
     let db = Firestore.firestore()
     @Published var isLoading: Bool = false
@@ -19,10 +21,18 @@ class MovieDetailViewModel : ObservableObject {
     @Published var goLoginView : Bool = false
     @Published var loginAlertTitle : String = ""
     
+    // swift data
+    @Published var favoriteManager : FavoriteManager? = nil
+    @Published var isFavorited : Bool = false
     private let api = MovieApi()
     
     init(movieID: Int) {
         self.movieID = movieID
+    }
+    
+    func config (_ modelContext : ModelContext) {
+        self.modelContext = modelContext
+        self.favoriteManager = FavoriteManager(movieID: movieID, userID: getCurrentUser().1)
     }
     
     func fetchComments () async  {
@@ -71,6 +81,7 @@ class MovieDetailViewModel : ObservableObject {
             print("[ERROR] Couldn't add document in database...")
         }
         self.waiting = false
+        self.comment = ""
     }
     
     func getCurrentUser () -> (String, String) {
@@ -78,6 +89,10 @@ class MovieDetailViewModel : ObservableObject {
         
         if let currentUser, let displayName = currentUser.displayName {
             return (displayName, currentUser.uid)
+        }
+        
+        if let currentUser {
+            return ("", currentUser.uid)
         }
         
         return ("", "")
@@ -119,7 +134,7 @@ class MovieDetailViewModel : ObservableObject {
             }
             
         } catch {
-            print("AAA AAA AAAA")
+            print("[ERROR] Could not verify if user liked \(error.localizedDescription)")
         }
         completion(false)
 
@@ -187,7 +202,7 @@ class MovieDetailViewModel : ObservableObject {
             }
             
         } catch {
-            print("Caio")
+            print("[ERROR] Error unliking: \(error.localizedDescription)")
         }
         
         await fetchLikes()
@@ -218,6 +233,44 @@ class MovieDetailViewModel : ObservableObject {
         } catch {
             print("[ERROR] Failed to fetch movie details: \(error)")
             self.errorMessage = "Failed to load movie details. Please try again."
+        }
+    }
+    
+    func onLoadingView (_ modelContext : ModelContext) {
+        Task {
+            await fetchComments()
+            await fetchLikes()
+            await fetchDetailMovie()
+            config(modelContext)
+            favoriteManager?.config(modelContext)
+            
+            do {
+                if let isUserFavorited = try self.favoriteManager?.verifyIfUserFavorited() {
+                    self.isFavorited = isUserFavorited
+                }
+            } catch {
+                print("[ERROR] Error fetching favorites: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func favoriteButtonPressed () {
+        if self.isFavorited == false {
+            do {
+                if let favorited = try favoriteManager?.favorite() {
+                    self.isFavorited = favorited
+                }
+            } catch {
+                print("[ERROR] Error favoriting: \(error.localizedDescription)")
+            }
+        } else {
+            do {
+                if let favorited = try favoriteManager?.unfavorite() {
+                    self.isFavorited = favorited
+                }
+            } catch {
+                print("[ERROR] Error unfavoriting: \(error.localizedDescription)")
+            }
         }
     }
 }
