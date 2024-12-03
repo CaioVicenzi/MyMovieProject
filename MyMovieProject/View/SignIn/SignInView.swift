@@ -4,30 +4,39 @@ struct SignInView: View {
     @ObservedObject private var vm = SignInViewModel()
     
     var body: some View {
-        VStack {
+        VStack (alignment: .leading, spacing: 0) {
+            inputLabel("Username")
             TextField("Username...", text: $vm.username)
                 .padding()
                 .background(Color.gray.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)
-                .padding(.top)
             
+            inputLabel("Email")
             TextField("Email...", text: $vm.email)
                 .padding()
                 .background(Color.gray.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)
             
+            inputLabel("Password")
             SecureField("Password...", text: $vm.password)
                 .padding()
                 .background(Color.gray.opacity(0.3))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)
             
-            NavigationLink("Already have an account? Log in") {
-                LoginView()
-                    .navigationBarBackButtonHidden()
+            HStack {
+                Spacer()
+                NavigationLink("Already have an account? Log in") {
+                    LoginView()
+                        .navigationBarBackButtonHidden()
+                }
+                Spacer()
             }
+            .bold()
+            .padding(.horizontal)
+            .padding(.top)
             
             Button {
                 Task { vm.signIn() }
@@ -64,10 +73,19 @@ struct SignInView: View {
         })
         .navigationTitle("Sign In")
     }
+    
+    @ViewBuilder
+    func inputLabel(_ text : String) -> some View {
+        Text(text)
+            .font(.callout)
+            .fontWeight(.light)
+            .padding(.horizontal)
+            .padding(.top)
+    }
 }
 
 #Preview {
-    NavigationStack {
+    NavigationView {
         SignInView()
     }
 }

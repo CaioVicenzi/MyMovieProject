@@ -6,7 +6,6 @@ struct LoginView: View {
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 0) {
-                
                 Text("Email")
                     .font(.callout)
                     .fontWeight(.light)
