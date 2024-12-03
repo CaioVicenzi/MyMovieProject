@@ -55,21 +55,31 @@ struct HomeView: View {
                     .listStyle(InsetGroupedListStyle())
                 }
             }
-            .navigationTitle("Bem-vindo, \(vm.currentUserName)!")
+            .navigationTitle(self.loginStateService.state == .ANONYMOUSLY_LOGGED || vm.currentUserName == "" ? "Welcome!" : "Welcome, \(vm.currentUserName)!")
             .onAppear {
                 if vm.movies.isEmpty {
                     vm.fetchPopularMovies()
                     vm.getUser()
                 }
             }
+            .fullScreenCover(isPresented: $vm.goLoginView, content: {
+                LoginView()
+            })
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    if self.loginStateService.state != .ANONYMOUSLY_LOGGED {
+                if self.loginStateService.state != .ANONYMOUSLY_LOGGED {
+                    ToolbarItem(placement: .topBarLeading) {
                         NavigationLink {
                             UserAccountView()
                         }label: {
                             Image(systemName: "person.circle.fill")
                         }
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button ("Login") {
+                            vm.goLoginView = true
+                        }
+                        .bold()
                     }
                 }
             }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MovieDetailView: View {
     @StateObject private var vm: MovieDetailViewModel
+    @EnvironmentObject private var loginStateService : LoginStateService
     
     init(movieID: Int) {
         _vm = StateObject(wrappedValue: MovieDetailViewModel(movieID: movieID))
@@ -40,6 +41,16 @@ struct MovieDetailView: View {
             }
         }
         .allowsHitTesting(!vm.waiting)
+        .alert(vm.loginAlertTitle, isPresented: $vm.showAlertLogin) {
+            Button("Continue", role: .cancel) {}
+            
+            Button("Login") {
+                vm.loginAlertButtonPressed()
+            }
+        }
+        .fullScreenCover(isPresented: $vm.goLoginView) {
+            LoginView()
+        }
     }
     
     private var headerView: some View {
@@ -72,17 +83,17 @@ struct MovieDetailView: View {
     }
     
     private var likeButton: some View {
-        Button {
-            vm.likeButtonPressed()
-        } label: {
-            VStack {
+        VStack {
+            Button {
+                vm.likeButtonPressed(loginStateService.state)
+            } label: {
                 Image(systemName: vm.didUserLiked ? "heart.fill" : "heart")
-                    .foregroundColor(.red)
-                Text(vm.likes.description)
-                    .foregroundColor(.white)
             }
+            .disabled(vm.waiting)
+            
+            Text(vm.likes.description)
+                .foregroundColor(.white)
         }
-        .disabled(vm.waiting)
     }
     
     private func descriptionSection(movie: MovieDetail) -> some View {
@@ -126,7 +137,7 @@ struct MovieDetailView: View {
                 if !vm.comment.isEmpty {
                     Button {
                         Task {
-                            await vm.saveComment()
+                            await vm.saveComment(self.loginStateService.state)
                         }
                     } label: {
                         Image(systemName: "paperplane.circle.fill")

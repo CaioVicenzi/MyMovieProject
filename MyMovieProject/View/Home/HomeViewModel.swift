@@ -7,6 +7,7 @@ class HomeViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var currentUserName : String = ""
+    @Published var goLoginView : Bool = false
     private var currentPage: Int = 1
     private var hasMorePages: Bool = true
     

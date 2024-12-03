@@ -5,6 +5,7 @@ import FirebaseAuth
 @MainActor
 class MovieDetailViewModel : ObservableObject {
     let movieID : Int
+    
     let db = Firestore.firestore()
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
@@ -14,6 +15,9 @@ class MovieDetailViewModel : ObservableObject {
     @Published var didUserLiked : Bool = false
     @Published var waiting : Bool = false
     @Published var movieDetail: MovieDetail?
+    @Published var showAlertLogin : Bool = false
+    @Published var goLoginView : Bool = false
+    @Published var loginAlertTitle : String = ""
     
     private let api = MovieApi()
     
@@ -42,8 +46,15 @@ class MovieDetailViewModel : ObservableObject {
         self.comments = comments
     }
     
-    func saveComment () async {
+    func saveComment (_ loginState : LoginStateService.LoginState) async {
+        guard loginState == .LOGGED_IN else {
+            self.loginAlertTitle = "You need to log in to comment this movie..."
+            self.showAlertLogin = true
+            return
+        }
+        
         self.waiting = true
+        
         do {
             let userInfo = getCurrentUser()
             
@@ -114,7 +125,13 @@ class MovieDetailViewModel : ObservableObject {
 
     }
     
-    func likeButtonPressed () {
+    func likeButtonPressed (_ loginState : LoginStateService.LoginState) {
+        guard loginState == .LOGGED_IN else {
+            self.loginAlertTitle = "You need to login to give this movie a like..."
+            self.showAlertLogin = true
+            return
+        }
+        
         Task {
             if self.waiting == true {
                 return
@@ -132,8 +149,10 @@ class MovieDetailViewModel : ObservableObject {
             
             self.didUserLiked.toggle()
         }
-            
-        
+    }
+    
+    func loginAlertButtonPressed () {
+        self.goLoginView = true
     }
     
     func like () async {

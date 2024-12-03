@@ -46,7 +46,7 @@ struct LoginView: View {
                 .padding()
 
                 Button {
-                    vm.loginUser()
+                    vm.loginUser(loginStateService)
                 } label: {
                     Text("Log in")
                         .font(.headline)

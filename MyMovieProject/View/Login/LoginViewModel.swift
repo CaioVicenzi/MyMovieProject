@@ -11,7 +11,7 @@ final class LoginViewModel : ObservableObject {
     @Published var waitingProcess : Bool = false
     
     
-    func loginUser () {
+    func loginUser (_ loginStateService : LoginStateService) {
         waitingProcess = true
         guard !email.isEmpty, !password.isEmpty else {
             waitingProcess = false
@@ -26,6 +26,7 @@ final class LoginViewModel : ObservableObject {
                     return
                 }
                 
+                loginStateService.state = .LOGGED_IN
                 self?.goHome = true
                 self?.waitingProcess = false
             }
