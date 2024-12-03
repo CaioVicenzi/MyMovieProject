@@ -5,14 +5,24 @@ struct LoginView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
+            VStack(alignment: .leading, spacing: 0) {
+                
+                Text("Email")
+                    .font(.callout)
+                    .fontWeight(.light)
+                    .padding(.horizontal)
                 
                 TextField("Email...", text: $vm.email)
                     .padding()
                     .background(Color.gray.opacity(0.3))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
-                    .padding(.top)
+                    .padding(.bottom)
+                
+                Text("Password")
+                    .font(.callout)
+                    .fontWeight(.light)
+                    .padding(.horizontal)
                 
                 SecureField("Password...", text: $vm.password)
                     .padding()
@@ -20,6 +30,21 @@ struct LoginView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
                 
+                HStack {
+                    NavigationLink ("Forgot password?") {
+                        ResetPasswordView()
+                    }
+                    
+                    Spacer()
+                    
+                    NavigationLink("Join us!") {
+                        SignInView()
+                            .navigationBarBackButtonHidden()
+                    }
+                }
+                .bold()
+                .padding()
+
                 Button {
                     vm.loginUser()
                 } label: {
@@ -31,7 +56,7 @@ struct LoginView: View {
                         .background(Color.accentColor)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.horizontal)
-                        .padding(.top)
+                        .padding(.bottom)
                 }
                 
                 Button {
@@ -47,17 +72,8 @@ struct LoginView: View {
                         .padding(.horizontal)
                         .padding(.bottom)
                 }
-                NavigationLink("Create an account") {
-                    SignInView()
-                        .navigationBarBackButtonHidden()
-                }
-                
-                NavigationLink("Reset password") {
-                    ResetPasswordView()
-                }
                 
                 Spacer()
-                
             }
             .navigationTitle("Login")
             .fullScreenCover(isPresented: $vm.goHome) {
@@ -74,7 +90,5 @@ struct LoginView: View {
 }
 
 #Preview {
-    NavigationStack {
-        LoginView()
-    }
+    LoginView()
 }
