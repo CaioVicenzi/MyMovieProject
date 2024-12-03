@@ -94,7 +94,7 @@ final class SignInViewModel : ObservableObject {
         
         var alertMessageText = "The field\(plural ? "s" : "") "
         for field in invalidFields {
-            alertMessageText.append("\(field)\(plural ? " " : ", ")")
+            alertMessageText.append("\(field)\(plural ? ", " : " ")")
         }
         
         alertMessageText.append("\(plural ? "are" : "is") invalid...")

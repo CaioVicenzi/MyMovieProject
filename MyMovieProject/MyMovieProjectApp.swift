@@ -14,10 +14,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 struct MyMovieProjectApp: App {
     @AppStorage("alreadyLog") var alreadyLog : Bool = false
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    let loginStateService = LoginStateService()
     
     var body: some Scene {
         WindowGroup {
             LoadingView()
+                .environmentObject(loginStateService)
         }
     }
 }

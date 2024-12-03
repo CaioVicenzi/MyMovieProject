@@ -31,4 +31,10 @@ final class LoginViewModel : ObservableObject {
             }
         }
     }
+    
+    func signInAnonymously () {
+        self.waitingProcess = true
+        self.goHome = true
+        self.waitingProcess = false
+    }
 }

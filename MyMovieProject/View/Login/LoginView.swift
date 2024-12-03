@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
     @ObservedObject private var vm = LoginViewModel()
+    @EnvironmentObject var loginStateService : LoginStateService
     
     var body: some View {
         NavigationView {
@@ -59,7 +60,9 @@ struct LoginView: View {
                 }
                 
                 Button {
-                    //vm.loginAnounymously()
+                    print("BUTTON PRESSED")
+                    vm.signInAnonymously()
+                    self.loginStateService.state = .ANONYMOUSLY_LOGGED
                 } label: {
                     Text("Log in anonymously")
                         .font(.headline)
