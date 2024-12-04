@@ -11,8 +11,6 @@ class MovieDetailViewModel : ObservableObject {
     let db = Firestore.firestore()
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    @Published var comments : [Comment] = []
-    @Published var comment : String = ""
     @Published var likes : Int = 0
     @Published var didUserLiked : Bool = false
     @Published var waiting : Bool = false
@@ -25,6 +23,11 @@ class MovieDetailViewModel : ObservableObject {
     @Published var favoriteManager : FavoriteManager? = nil
     @Published var isFavorited : Bool = false
     private let api = MovieApi()
+    
+    // comments
+    @Published var comments : [Comment] = []
+    @Published var comment : String = ""
+    @Published var showAlertDeleteComment : Bool = false
     
     init(movieID: Int) {
         self.movieID = movieID
@@ -45,9 +48,11 @@ class MovieDetailViewModel : ObservableObject {
                 let content = data["content"] as! String
                 let movieID = data["movieID"] as! Int
                 let username = data["username"] as! String
+                let userID = data["userID"] as! String
+                let id = data["id"] as! String
                 
                 if movieID == self.movieID {
-                    comments.append(Comment(title: content, moovieID: movieID, username: username))
+                    comments.append(Comment(title: content, moovieID: movieID, username: username, userID: userID, id: id))
                 }
             }
         } catch {
@@ -82,6 +87,35 @@ class MovieDetailViewModel : ObservableObject {
         }
         self.waiting = false
         self.comment = ""
+    }
+    
+    func deleteCommentButtonPressed() {
+        showAlertDeleteComment = true
+    }
+    
+    func deleteComment (_ idComment : String) {
+        Task {
+            if self.waiting == true {
+                return
+            }
+            
+            self.waiting = true
+
+            
+            do {
+                let documents = try await db.collection("comment").whereField("id", isEqualTo: idComment).getDocuments()
+                if let firstDocument = documents.documents.first {
+                    try await firstDocument.reference.delete()
+                } else {
+                    print("[ERROR] There is no comment with this id...")
+                }
+            } catch {
+                print("[ERROR] Could not delete comment from id: \(idComment)")
+            }
+            
+            await fetchComments()
+            self.waiting = false
+        }
     }
     
     func getCurrentUser () -> (String, String) {

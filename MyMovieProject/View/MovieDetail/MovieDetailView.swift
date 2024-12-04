@@ -45,6 +45,12 @@ struct MovieDetailView: View {
                 vm.loginAlertButtonPressed()
             }
         }
+        .alert("Are you sure you want to delete the comment?", isPresented: $vm.showAlertDeleteComment) {
+            //vm.deleteComment(comment.id)
+            
+        } message: {
+            Text("This action can't be undone.")
+        }
         .fullScreenCover(isPresented: $vm.goLoginView) {
             LoginView()
         }
@@ -167,6 +173,16 @@ struct MovieDetailView: View {
             } else {
                 ForEach(vm.comments, id: \.title) { comment in
                     CommentCard(comment: comment)
+                        .overlay(alignment: .topTrailing, content: {
+                            if comment.userID == vm.getCurrentUser().1 {
+                                Button {
+                                    vm.deleteComment(comment.id)
+                                } label: {
+                                    Image(systemName: "trash.circle.fill")
+                                        .padding()
+                                }
+                            }
+                        })
                 }
             }
         }
