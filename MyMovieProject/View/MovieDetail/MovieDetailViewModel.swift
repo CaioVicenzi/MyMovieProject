@@ -100,26 +100,33 @@ class MovieDetailViewModel : ObservableObject {
     
     func fetchLikes () async {
         do {
-            var likes = 0
-            let argument = try await db.collection("like").getDocuments()
-            for document in argument.documents {
-                let data = document.data()
-                
-                if data["movieID"] as? Int == self.movieID {
-                    likes += 1
-                    
-                    if data["userID"] as? String == getCurrentUser().1 {
-                        self.didUserLiked = true
-                    }
-                }
+            let query = try await db.collection("movie")
+                .whereField("id", isEqualTo: movieID.description)
+                .getDocuments()
+            
+            guard let document = query.documents.first else {
+                try await self.db.collection("movie").addDocument(data: [
+                    "id" : self.movieID.description,
+                    "usersThatLiked": [],
+                ])
+                self.likes = 0
+                return
             }
-            self.likes = likes
-
+            
+            let data = document.data()
+            if let usersThatLiked = data["usersThatLiked"] as? [String] {
+                self.likes = usersThatLiked.count
+                self.didUserLiked = usersThatLiked.contains(where: { string in string == self.getCurrentUser().1 })
+            } else {
+                print("[ERROR] The data type was actually other than String...")
+            }
         } catch {
-            print("[ERROR] Couldn't fetch comment data: \(error)")
+            print("[ERROR] Error fetching likes")
         }
     }
     
+    
+    /*
     func verifyIfUserLiked (completion : (Bool) -> Void) async {
         let currentUserID = getCurrentUser().1
         do {
@@ -139,6 +146,7 @@ class MovieDetailViewModel : ObservableObject {
         completion(false)
 
     }
+     */
     
     func likeButtonPressed (_ loginState : LoginStateService.LoginState) {
         guard loginState == .LOGGED_IN else {
@@ -152,6 +160,15 @@ class MovieDetailViewModel : ObservableObject {
                 return
             }
             
+            if didUserLiked {
+                await unlike()
+            } else {
+                await like()
+            }
+            
+            await fetchLikes()
+            
+            /*
             await verifyIfUserLiked { liked in
                 Task {
                     if liked {
@@ -161,8 +178,9 @@ class MovieDetailViewModel : ObservableObject {
                     }
                 }
             }
+             */
             
-            self.didUserLiked.toggle()
+            //self.didUserLiked.toggle()
         }
     }
     
@@ -172,42 +190,65 @@ class MovieDetailViewModel : ObservableObject {
     
     func like () async {
         self.waiting = true
-        let userInfo = getCurrentUser()
-           
-        do {
-            try await db.collection("like").addDocument(data: [
-                "id" : UUID().uuidString,
-                "movieID": movieID,
-                "userID": userInfo.1,
-            ])
-        } catch {
-            print("[ERROR] Couldn't like correctly")
-        }
+        let userID = getCurrentUser().1
         
-        await fetchLikes()
+        do {
+            let snapshot = try await db.collection("movie")
+                .whereField("id", isEqualTo: movieID.description)
+                .getDocuments()
+            
+            guard let document = snapshot.documents.first else {
+                print("[ERROR] 404 - Documento não encontrado")
+                return
+            }
+            
+            var userLikes = document.data()["usersThatLiked"] as? [String] ?? []
+            userLikes.append(userID)
+            
+            try await document.reference.updateData([
+                "usersThatLiked" :  userLikes
+            ])
+            
+            print("[DEBUG] Documento atualizado com sucesso!")
+        } catch {
+            print("[ERROR] Erro na hora de dar like \(error.localizedDescription)")
+        }
+         
         self.waiting = false
     }
     
     func unlike () async {
         self.waiting = true
-        let currentUserID = getCurrentUser().1
-
+        let userID = self.getCurrentUser().1
+        
         do {
-            let documents = try await db.collection("like").getDocuments().documents
-            for document in documents {
-                let data = document.data()
-                if data["userID"] as? String == currentUserID {
-                    try await document.reference.delete()
-                }
+            let snapshot = try await db.collection("movie")
+                .whereField("id", isEqualTo: movieID.description)
+                .getDocuments()
+            
+            guard let document = snapshot.documents.first else {
+                print("[ERROR] 404 - Documento não encontrado")
+                return
             }
             
+            var usersThatLiked = document.data()["usersThatLiked"] as? [String] ?? []
+            
+            if let index = usersThatLiked.firstIndex(of: userID) {
+                usersThatLiked.remove(at: index)
+                
+                try await document.reference.updateData([
+                    "usersThatLiked" : usersThatLiked
+                ])
+            } else {
+                print("[ERROR] Usuário não tinha dado like...")
+            }
+            
+            print("[DEBUG] Documento atualizado com sucesso!")
         } catch {
-            print("[ERROR] Error unliking: \(error.localizedDescription)")
+            print("[ERROR] Erro na hora de dar like \(error.localizedDescription)")
         }
         
-        await fetchLikes()
         self.waiting = false
-        
     }
     
     func fetchDetailMovie() async {
