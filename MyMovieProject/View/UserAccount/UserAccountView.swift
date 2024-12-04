@@ -1,68 +1,67 @@
 import SwiftUI
+import SwiftData
 
 struct UserAccountView: View {
-    @StateObject var vm = UserAccountViewModel()
-
+    @ObservedObject var vm: UserAccountViewModel
+    @Environment(\.modelContext) var modelContext
+    
+    init() {
+        self.vm = UserAccountViewModel()
+    }
+    
     var body: some View {
-        VStack{
-            HStack {
-                Text("Hello \(vm.getUsername())!")
-                    .bold()
-                    .font(.largeTitle)
-                Spacer()
-            }
-            .padding(.horizontal)
-            
-            Spacer()
-            
-            List {
-                Section {
-                    Button ("Change username") {
-                        vm.showChangeNameView = true
+        ScrollView {
+            VStack (alignment: .leading) {
+                Text("Movies that you favorited: ")
+                    .font(.headline)
+                    .padding(.horizontal)
+                List {
+                    ForEach (vm.favoritedMoview, id: \.self) { favoriteMovie in
+                        Text(favoriteMovie)
                     }
                 }
                 
-                Section {
-                    Button ("Log out") {
-                        vm.showAlertLogOut = true
-                    }
-                    .tint(.red)
-                    
-                    Button("Delete account"){
-                        vm.showAlertDeleteAccount = true
-                    }
-                    .tint(.red)
+                Text("Todos os comentários que você fez: ")
+                    .font(.headline)
+                    .padding(.horizontal)
+                
+                ForEach (vm.comments, id: \.id) { comment in
+                    RoundedRectangle(cornerRadius: 20)
+                        .frame(height: 60)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal)
+                        .foregroundStyle(.purple.opacity(0.3))
+                        .overlay (alignment: .top) {
+                            VStack {
+                                HStack {
+                                    Text(comment.title)
+                                    Spacer()
+                                    //Text("25/12/2024")
+                                }
+                                
+                                HStack {
+                                    Text(comment.movieTitle)
+                                    Spacer()
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            }
+                            .padding()
+                            .padding(.horizontal)
+                        }
                 }
             }
-            
-            Spacer()
+            .overlay(alignment: .center, content: {
+                if vm.waiting {
+                    ProgressView("Loading")
+                }
+            })
+            .onAppear(perform: {
+                vm.config(modelContext: modelContext)
+                vm.onAppearView()
+            })
+            .navigationTitle("Profile")
         }
-        .alert("Are you sure you want to log out?", isPresented: $vm.showAlertLogOut) {
-            Button ("Yes", role: .destructive) {
-                vm.logOut()
-            }
-            
-            Button ("No", role: .cancel) {}
-        }
-        .alert("Are you sure you want to delete your account?", isPresented: $vm.showAlertDeleteAccount) {
-            Button ("Yes", role: .destructive) {
-                vm.deleteAccount()
-            }
-            
-            Button ("No", role: .cancel) {}
-        } message: {
-            Text("This action can't be undone.")
-        }
-        .fullScreenCover(isPresented: $vm.goOnboarding) {
-            OnboardingView()
-        }
-        .sheet(isPresented: $vm.showChangeNameView) {
-            ChangeUsernameView {username in
-                vm.changeUsername(name: username)
-            }
-            .presentationDetents([.fraction(0.3)])
-        }
-
     }
 }
 
