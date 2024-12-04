@@ -110,9 +110,9 @@
             filePath = "MyMovieProject/View/MovieDetail/MovieDetailViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "192"
-            endingLineNumber = "192"
-            landmarkName = "like()"
+            startingLineNumber = "155"
+            endingLineNumber = "155"
+            landmarkName = "likeButtonPressed(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

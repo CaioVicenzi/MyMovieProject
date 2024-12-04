@@ -125,29 +125,6 @@ class MovieDetailViewModel : ObservableObject {
         }
     }
     
-    
-    /*
-    func verifyIfUserLiked (completion : (Bool) -> Void) async {
-        let currentUserID = getCurrentUser().1
-        do {
-            let argument = try await db.collection("like").getDocuments()
-            for document in argument.documents {
-                let data = document.data()
-                
-                if data["userID"] as? String == currentUserID {
-                    completion(true)
-                    return
-                }
-            }
-            
-        } catch {
-            print("[ERROR] Could not verify if user liked \(error.localizedDescription)")
-        }
-        completion(false)
-
-    }
-     */
-    
     func likeButtonPressed (_ loginState : LoginStateService.LoginState) {
         guard loginState == .LOGGED_IN else {
             self.loginAlertTitle = "You need to login to give this movie a like..."
@@ -167,20 +144,6 @@ class MovieDetailViewModel : ObservableObject {
             }
             
             await fetchLikes()
-            
-            /*
-            await verifyIfUserLiked { liked in
-                Task {
-                    if liked {
-                        await unlike()
-                    } else {
-                        await like()
-                    }
-                }
-            }
-             */
-            
-            //self.didUserLiked.toggle()
         }
     }
     
@@ -242,8 +205,6 @@ class MovieDetailViewModel : ObservableObject {
             } else {
                 print("[ERROR] Usuário não tinha dado like...")
             }
-            
-            print("[DEBUG] Documento atualizado com sucesso!")
         } catch {
             print("[ERROR] Erro na hora de dar like \(error.localizedDescription)")
         }
