@@ -29,6 +29,8 @@ struct HomeView: View {
                                             .cornerRadius(8)
                                     } placeholder: {
                                         ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle())
+                                            .frame(width: 50, height: 75)
                                     }
                                     
                                     VStack(alignment: .leading) {
