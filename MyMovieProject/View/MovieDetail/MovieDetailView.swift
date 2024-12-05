@@ -19,12 +19,15 @@ struct MovieDetailView: View {
             ScrollView {
                 if let movie = vm.movieDetail {
                     VStack(alignment: .leading, spacing: 20) {
-                        descriptionSection(movie: movie)
+                        Group {
+                            descriptionSection(movie: movie)
                         genreSection(genres: movie.genres)
-                        videoSection(movie: movie) // Seção de vídeo adicionada
+                        videoSection(movie: movie)
+                        }
+                        .padding(.horizontal)
                         commentsSection
                     }
-                    .padding(.horizontal)
+                    
                 } else {
                     ProgressView()
                         .padding()
@@ -187,10 +190,12 @@ struct MovieDetailView: View {
             Text("Comments")
                 .font(.headline)
                 .bold()
+                .padding(.horizontal)
             
             HStack {
                 TextField("I liked this movie because...", text: $vm.comment)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .padding(.horizontal)
                 
                 if !vm.comment.isEmpty {
                     Button {
@@ -212,19 +217,18 @@ struct MovieDetailView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(vm.comments, id: \.title) { comment in
-                    CommentCard(comment: comment, isFromTheUser: comment.userID == self.vm.getCurrentUser().1)
-                        .overlay(alignment: .topTrailing, content: {
-                            if comment.userID == vm.getCurrentUser().1 {
-                                Button {
+                List {
+                    ForEach(vm.comments, id: \.title) { comment in
+                        CommentCard(comment: comment, isFromTheUser: comment.userID == self.vm.getCurrentUser().1)
+                            .swipeActions {
+                                Button ("Delete", role: .destructive) {
                                     vm.deleteComment(comment.id)
-                                } label: {
-                                    Image(systemName: "trash.circle.fill")
-                                        .padding()
                                 }
                             }
-                        })
+                    }
                 }
+                .frame(height: 400)
+                .listStyle(.plain)
             }
         }
     }
@@ -240,9 +244,15 @@ struct CommentCard: View {
             .frame(height: 80)
             .overlay(alignment: .leading) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(comment.username)
-                        .bold()
-                        .foregroundStyle(isFromTheUser ? .purple : .primary)
+                    HStack {
+                        Text(comment.username)
+                            .bold()
+                            .foregroundStyle(isFromTheUser ? .purple : .primary)
+                        Spacer()
+                        Text(comment.date.dateValue().formatted(date: .numeric, time: .omitted))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     Text(comment.title)
                         .foregroundColor(.secondary)
                 }
