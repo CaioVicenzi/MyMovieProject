@@ -2,8 +2,11 @@ import SwiftUI
 
 struct MovieDetailView: View {
     @StateObject private var vm: MovieDetailViewModel
-    @EnvironmentObject private var loginStateService : LoginStateService
+    @EnvironmentObject private var loginStateService: LoginStateService
     @Environment(\.modelContext) var modelContext
+    
+    @State private var showWebView: Bool = false
+    @State private var selectedVideoURL: URL?
     
     init(movieID: Int) {
         _vm = StateObject(wrappedValue: MovieDetailViewModel(movieID: movieID))
@@ -18,6 +21,7 @@ struct MovieDetailView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         descriptionSection(movie: movie)
                         genreSection(genres: movie.genres)
+                        videoSection(movie: movie) // Seção de vídeo adicionada
                         commentsSection
                     }
                     .padding(.horizontal)
@@ -40,14 +44,12 @@ struct MovieDetailView: View {
         .allowsHitTesting(!vm.waiting)
         .alert(vm.loginAlertTitle, isPresented: $vm.showAlertLogin) {
             Button("Continue", role: .cancel) {}
-            
             Button("Login") {
                 vm.loginAlertButtonPressed()
             }
         }
         .alert("Are you sure you want to delete the comment?", isPresented: $vm.showAlertDeleteComment) {
-            //vm.deleteComment(comment.id)
-            
+            // Action for deleting a comment (if required)
         } message: {
             Text("This action can't be undone.")
         }
@@ -57,6 +59,12 @@ struct MovieDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 favoriteButton
+            }
+        }
+        .sheet(isPresented: $showWebView) {
+            if let selectedURL = selectedVideoURL {
+                SafariViewControllerWrapper(url: selectedURL)
+                    .edgesIgnoringSafeArea(.all)
             }
         }
     }
@@ -141,6 +149,39 @@ struct MovieDetailView: View {
         }
     }
     
+    private func videoSection(movie: MovieDetail) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Watch Trailer")
+                .font(.headline)
+                .bold()
+            
+            if let movieVideos = vm.movieVideos, !movieVideos.isEmpty {
+                ForEach(movieVideos, id: \.id) { video in
+                    if let videoURL = video.youtubeURL {
+                        Button(action: {
+                            self.selectedVideoURL = videoURL
+                            self.showWebView = true
+                        }) {
+                            HStack {
+                                Image(systemName: "play.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(height: 40)
+                                Text("Watch \(video.name)")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                    }
+                }
+            } else {
+                Text("No trailers available.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    
     private var commentsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Comments")
@@ -191,7 +232,7 @@ struct MovieDetailView: View {
 
 struct CommentCard: View {
     let comment: Comment
-    let isFromTheUser : Bool
+    let isFromTheUser: Bool
     
     var body: some View {
         RoundedRectangle(cornerRadius: 10)

@@ -13,9 +13,10 @@ struct MovieDetail: Codable {
     let backdropPath: String?
     let homepage: String?
     let tagline: String?
+    let videos: [MovieVideo]? // Adicionando a lista de vídeos
     
     enum CodingKeys: String, CodingKey {
-        case id, title, overview, runtime, genres, homepage, tagline
+        case id, title, overview, runtime, genres, homepage, tagline, videos
         case releaseDate = "release_date"
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
