@@ -50,9 +50,10 @@ class MovieDetailViewModel : ObservableObject {
                 let username = data["username"] as! String
                 let userID = data["userID"] as! String
                 let id = data["id"] as! String
+                let date = data["date"] as! Timestamp
                 
                 if movieID == self.movieID {
-                    comments.append(Comment(title: content, moovieID: movieID, username: username, userID: userID, id: id))
+                    comments.append(Comment(title: content, moovieID: movieID, username: username, userID: userID, id: id, date: date))
                 }
             }
         } catch {
@@ -78,7 +79,8 @@ class MovieDetailViewModel : ObservableObject {
                 "id" : UUID().uuidString,
                 "movieID": movieID,
                 "userID": userInfo.1,
-                "username": userInfo.0
+                "username": userInfo.0,
+                "date" : Timestamp(date: Date())
             ])
             
             await fetchComments()
