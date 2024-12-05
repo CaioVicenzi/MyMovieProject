@@ -92,8 +92,9 @@ class UserAccountViewModel : ObservableObject {
     
     func unfavoriteMovie(_ id : Int) {
         do {
+            let userID = getUserID()
             let favorite = try modelContext?.fetch(FetchDescriptor<Favorite>(predicate: #Predicate{ favorite in
-                favorite.movieID == id
+                favorite.movieID == id && favorite.uid == userID
             }))
             
             if let favoriteToDelete = favorite?.first {

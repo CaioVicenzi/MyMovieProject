@@ -172,7 +172,7 @@ struct MovieDetailView: View {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(vm.comments, id: \.title) { comment in
-                    CommentCard(comment: comment)
+                    CommentCard(comment: comment, isFromTheUser: comment.userID == self.vm.getCurrentUser().1)
                         .overlay(alignment: .topTrailing, content: {
                             if comment.userID == vm.getCurrentUser().1 {
                                 Button {
@@ -191,6 +191,7 @@ struct MovieDetailView: View {
 
 struct CommentCard: View {
     let comment: Comment
+    let isFromTheUser : Bool
     
     var body: some View {
         RoundedRectangle(cornerRadius: 10)
@@ -200,6 +201,7 @@ struct CommentCard: View {
                 VStack(alignment: .leading, spacing: 5) {
                     Text(comment.username)
                         .bold()
+                        .foregroundStyle(isFromTheUser ? .purple : .primary)
                     Text(comment.title)
                         .foregroundColor(.secondary)
                 }

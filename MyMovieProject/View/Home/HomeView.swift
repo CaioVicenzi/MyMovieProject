@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @StateObject var vm = HomeViewModel()
     @EnvironmentObject var loginStateService : LoginStateService
+    @Environment(\.modelContext) var modelContext
     
     var body: some View {
         NavigationView {
@@ -37,6 +38,18 @@ struct HomeView: View {
                                             .font(.subheadline)
                                             .foregroundColor(.secondary)
                                     }
+                                    
+                                    Spacer()
+                                    
+                                    VStack {
+                                        Spacer()
+                                        if vm.movieIsFavorited(movie.id){
+                                            Image(systemName: "star.fill")
+                                                .foregroundStyle(.purple)
+                                        }
+                                        Spacer()
+                                        Spacer()
+                                    }
                                 }
                                 
                             }
@@ -57,10 +70,7 @@ struct HomeView: View {
             }
             .navigationTitle("My Movie Project")
             .onAppear {
-                if vm.movies.isEmpty {
-                    vm.fetchPopularMovies()
-                    vm.getUser()
-                }
+                vm.onLoadView(modelContext)
             }
             .fullScreenCover(isPresented: $vm.goLoginView, content: {
                 LoginView()
