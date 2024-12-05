@@ -40,11 +40,13 @@ struct UserAccountView: View {
             vm.onAppearView()
         })
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink {
-                    UserConfigurationsView()
-                } label: {
-                    Image(systemName: "gear")
+            if loginState.state != .ANONYMOUSLY_LOGGED {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        UserConfigurationsView()
+                    } label: {
+                        Image(systemName: "gear")
+                    }
                 }
             }
         }

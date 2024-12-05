@@ -5,7 +5,6 @@ import SwiftData
 
 class UserAccountViewModel : ObservableObject {
     let db = Firestore.firestore()
-    @Published var comments : [Comment] = []
     @Published var favoriteMovies : [FavoriteMovieModelAccountView] = []
     @Published var waiting : Bool = false
     
@@ -28,40 +27,7 @@ class UserAccountViewModel : ObservableObject {
         if let displayName = Auth.auth().currentUser?.uid {
             return displayName
         } else {
-            fatalError("Could not get user ID.")
-        }
-    }
-    
-    func fetchAllCommentsFromCurrentUser () async {
-        DispatchQueue.main.sync {
-            self.waiting = true
-        }
-        
-        let userID = self.getUserID()
-        
-        do {
-            let documents = try await db.collection("comment").whereField("userID", isEqualTo: userID).getDocuments().documents
-            
-            for document in documents {
-                let content = document.data()["content"] as! String
-                let id = document.data()["id"] as! String
-                let movieID = document.data()["movieID"] as! Int
-                let userID = document.data()["userID"] as! String
-                let username = document.data()["username"] as! String
-                
-                
-                let commentCreated = await Comment(title: content, moovieID: movieID, username: username, userID: userID, id: id, movieTitle: self.getMovieNameByID(id))
-                
-                comments.append(commentCreated)
-                
-                print("[DEBUG] Comment created: \(commentCreated.title)")
-            }
-        } catch {
-            print("[ERROR] Could not fetch comments \(error.localizedDescription)")
-        }
-        
-        DispatchQueue.main.sync {
-            self.waiting = false
+            return ""
         }
     }
     
@@ -71,7 +37,9 @@ class UserAccountViewModel : ObservableObject {
             return
         }
         
-        self.favoriteMovies = []
+        DispatchQueue.main.sync {
+            self.favoriteMovies = []
+        }
         
         let userID = getUserID()
         
@@ -90,7 +58,6 @@ class UserAccountViewModel : ObservableObject {
     
     func onAppearView () {
         Task {
-            await fetchAllCommentsFromCurrentUser()
             await fetchAllFavoritedMoviesFromCurrentUser()
         }
     }

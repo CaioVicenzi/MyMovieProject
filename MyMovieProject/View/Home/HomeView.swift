@@ -3,7 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @StateObject var vm = HomeViewModel()
     @EnvironmentObject var loginStateService : LoginStateService
-
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -38,7 +38,7 @@ struct HomeView: View {
                                             .foregroundColor(.secondary)
                                     }
                                 }
-
+                                
                             }
                         }
                         
@@ -66,15 +66,15 @@ struct HomeView: View {
                 LoginView()
             })
             .toolbar {
-                if self.loginStateService.state != .ANONYMOUSLY_LOGGED {
-                    ToolbarItem(placement: .topBarLeading) {
-                        NavigationLink {
-                            UserAccountView()
-                        }label: {
-                            Image(systemName: "person.circle.fill")
-                        }
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink {
+                        UserAccountView()
+                    }label: {
+                        Image(systemName: "person.circle.fill")
                     }
-                } else {
+                }
+                  
+                if self.loginStateService.state == .ANONYMOUSLY_LOGGED {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button ("Login") {
                             vm.goLoginView = true
