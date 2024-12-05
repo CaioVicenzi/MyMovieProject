@@ -6,7 +6,7 @@ import SwiftData
 class UserAccountViewModel : ObservableObject {
     let db = Firestore.firestore()
     @Published var comments : [Comment] = []
-    @Published var favoritedMoview : [String] = []
+    @Published var favoriteMovies : [FavoriteMovieModelAccountView] = []
     @Published var waiting : Bool = false
     
     var modelContext : ModelContext? = nil
@@ -71,6 +71,8 @@ class UserAccountViewModel : ObservableObject {
             return
         }
         
+        self.favoriteMovies = []
+        
         let userID = getUserID()
         
         do {
@@ -79,7 +81,7 @@ class UserAccountViewModel : ObservableObject {
             }))
             
             for favorite in favorited {
-                await favoritedMoview.append(self.getMovieNameByID(favorite.movieID.description))
+                await favoriteMovies.append(FavoriteMovieModelAccountView(movieID: favorite.movieID, movieName: getMovieNameByID(favorite.movieID.description)))
             }
         } catch {
             print("[ERROR] Could not fetch favorited movies...")
@@ -119,5 +121,24 @@ class UserAccountViewModel : ObservableObject {
         }
         
         return title
+    }
+    
+    func unfavoriteMovie(_ id : Int) {
+        do {
+            let favorite = try modelContext?.fetch(FetchDescriptor<Favorite>(predicate: #Predicate{ favorite in
+                favorite.movieID == id
+            }))
+            
+            if let favoriteToDelete = favorite?.first {
+                modelContext?.delete(favoriteToDelete)
+            }
+
+        } catch {
+            print("[ERROR] error unfavoriting movie: \(error.localizedDescription)")
+        }
+        
+        Task {
+            await self.fetchAllFavoritedMoviesFromCurrentUser()
+        }
     }
 }

@@ -55,7 +55,7 @@ struct HomeView: View {
                     .listStyle(InsetGroupedListStyle())
                 }
             }
-            .navigationTitle(self.loginStateService.state == .ANONYMOUSLY_LOGGED || vm.currentUserName == "" ? "Welcome!" : "Welcome, \(vm.currentUserName)!")
+            .navigationTitle("My Movie Project")
             .onAppear {
                 if vm.movies.isEmpty {
                     vm.fetchPopularMovies()

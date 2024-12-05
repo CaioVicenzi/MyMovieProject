@@ -6,7 +6,7 @@ struct UserConfigurationsView: View {
     var body: some View {
         VStack{
             HStack {
-                Text("Hello \(vm.getUsername())!")
+                Text("User settings")
                     .bold()
                     .font(.largeTitle)
                 Spacer()
