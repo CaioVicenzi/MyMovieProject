@@ -9,6 +9,9 @@ class HomeViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var goLoginView : Bool = false
     
+    // uma variável que indica se os filmes favoritos estão sendo filtrados
+    @Published var favoriteMoviesFiltered : Bool = false
+    
     @Published var idFavoriteMovies : [Int] = []
     
     private var currentPage: Int = 1
