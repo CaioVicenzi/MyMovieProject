@@ -12,7 +12,7 @@ struct MovieDetailView: View {
     init(movieID: Int) {
         _vm = StateObject(wrappedValue: MovieDetailViewModel(movieID: movieID))
     }
-
+    
     var body: some View {
         VStack {
             headerView
@@ -73,7 +73,7 @@ struct MovieDetailView: View {
             }
         }
     }
-
+    
     
     private var headerView: some View {
         RoundedRectangle(cornerRadius: 30)
@@ -178,45 +178,54 @@ struct MovieDetailView: View {
                     .transition(.opacity)
             }
         }
+        .onAppear {
+            vm.isVideoLoading = true // Indica que o carregamento está começando
+            Task {
+                // Simule o carregamento (ou insira a lógica de carregamento real aqui)
+                try await Task.sleep(nanoseconds: 2_000_000_000)
+                DispatchQueue.main.async {
+                    vm.isVideoLoading = false // Carregamento concluído
+                }
+            }
+        }
+        
     }
-
+    
     
     private func videoSection(movie: MovieDetail) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let movieVideos = vm.movieVideos, !movieVideos.isEmpty {
-                ForEach(movieVideos, id: \.id) { video in
-                    if let videoURL = video.youtubeURL {
-                        Button {
-                            selectedVideoURL = videoURL
-                            showWebView = true
-                        } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "play.circle.fill")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(height: 40)
-                                    .foregroundColor(.blue)
-                                
-                                Text("Watch \(video.name)")
-                                    .font(.body)
-                                    .foregroundColor(.blue)
-                            }
-                            .padding(.vertical, 6)
-                        }
-                        .disabled(vm.isVideoLoading)
-                    }
-                }
+            
+            if vm.isVideoLoading {
+                ProgressView("Loading videos...")
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding()
             } else {
-                Text("No trailers available.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding(.vertical, 8)
-        .onAppear {
-            DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 2) {
-                DispatchQueue.main.async {
-                    vm.isVideoLoading = true
+                if let movieVideos = vm.movieVideos, !movieVideos.isEmpty {
+                    ForEach(movieVideos, id: \.id) { video in
+                        if let videoURL = video.youtubeURL {
+                            Button {
+                                selectedVideoURL = videoURL
+                                showWebView = true
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "play.circle.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 40)
+                                        .foregroundColor(.blue)
+                                    
+                                    Text("Watch \(video.name)")
+                                        .font(.body)
+                                        .foregroundColor(.blue)
+                                }
+                                .padding(.vertical, 6)
+                            }
+                        }
+                    }
+                } else {
+                    Text("No trailers available.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
             }
         }
