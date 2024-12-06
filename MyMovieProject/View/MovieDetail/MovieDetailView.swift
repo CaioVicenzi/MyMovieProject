@@ -154,7 +154,7 @@ struct MovieDetailView: View {
     }
     
     private func videoSection(movie: MovieDetail) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Watch Trailer")
                 .font(.headline)
                 .bold()
@@ -162,18 +162,22 @@ struct MovieDetailView: View {
             if let movieVideos = vm.movieVideos, !movieVideos.isEmpty {
                 ForEach(movieVideos, id: \.id) { video in
                     if let videoURL = video.youtubeURL {
-                        Button(action: {
-                            self.selectedVideoURL = videoURL
-                            self.showWebView = true
-                        }) {
-                            HStack {
+                        Button {
+                            selectedVideoURL = videoURL
+                            showWebView = true
+                        } label: {
+                            HStack(spacing: 8) {
                                 Image(systemName: "play.circle.fill")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 40)
+                                    .foregroundColor(.blue)
+                                
                                 Text("Watch \(video.name)")
+                                    .font(.body)
                                     .foregroundColor(.blue)
                             }
+                            .padding(.vertical, 6)
                         }
                         .disabled(vm.isVideoLoading)
                     }
@@ -184,11 +188,11 @@ struct MovieDetailView: View {
                     .foregroundColor(.secondary)
             }
         }
+        .padding(.vertical, 8)
         .onAppear {
-            DispatchQueue.global(qos: .userInitiated).async {
-                sleep(2)
+            DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 2) {
                 DispatchQueue.main.async {
-                    self.vm.isVideoLoading = true   
+                    vm.isVideoLoading = true
                 }
             }
         }
