@@ -10,7 +10,7 @@ class MovieDetailViewModel : ObservableObject {
     
     let db = Firestore.firestore()
     @Published var isLoading: Bool = false
-    @Published var isLoading: Bool = false
+    @Published var isVideoLoading: Bool = false
     @Published var errorMessage: String?
     @Published var likes : Int = 0
     @Published var didUserLiked : Bool = false

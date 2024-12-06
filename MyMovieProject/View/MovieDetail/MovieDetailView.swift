@@ -163,16 +163,8 @@ struct MovieDetailView: View {
                 ForEach(movieVideos, id: \.id) { video in
                     if let videoURL = video.youtubeURL {
                         Button(action: {
-                            self.vm.isVideoLoading = true
                             self.selectedVideoURL = videoURL
-                            
-                            DispatchQueue.global(qos: .userInitiated).async {
-                                sleep(2) // Simulação de 2 segundos de carregamento
-                                DispatchQueue.main.async {
-                                    self.vm.isVideoLoading = false // Termina o carregamento
-                                    self.showWebView = true
-                                }
-                            }
+                            self.showWebView = true
                         }) {
                             HStack {
                                 Image(systemName: "play.circle.fill")
@@ -190,6 +182,14 @@ struct MovieDetailView: View {
                 Text("No trailers available.")
                     .font(.caption)
                     .foregroundColor(.secondary)
+            }
+        }
+        .onAppear {
+            DispatchQueue.global(qos: .userInitiated).async {
+                sleep(2)
+                DispatchQueue.main.async {
+                    self.vm.isVideoLoading = true   
+                }
             }
         }
     }
