@@ -43,6 +43,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Manager/FavoriteManager.swift,
+				"Model/AggressionClassifier 5000.mlpackage",
 				Model/Favorite.swift,
 			);
 			target = B8ED579B2CF8986800626209 /* SourceUnitTests */;

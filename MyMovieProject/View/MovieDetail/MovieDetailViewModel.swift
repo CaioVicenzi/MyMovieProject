@@ -30,6 +30,7 @@ class MovieDetailViewModel : ObservableObject {
     @Published var comments : [Comment] = []
     @Published var comment : String = ""
     @Published var showAlertDeleteComment : Bool = false
+    @Published var showAlertCommentInnapropriate : Bool = false
     
     init(movieID: Int) {
         self.movieID = movieID
@@ -82,6 +83,11 @@ class MovieDetailViewModel : ObservableObject {
             return
         }
         
+        guard isCommentAppropriate() else {
+            self.showAlertCommentInnapropriate = true
+            return
+        }
+        
         self.waiting = true
         
         do {
@@ -101,6 +107,17 @@ class MovieDetailViewModel : ObservableObject {
         }
         self.waiting = false
         self.comment = ""
+    }
+    
+    func isCommentAppropriate() -> Bool {
+        do {
+            let model = try AggressionClassifier_5000()
+            let result = try model.prediction(text: comment)
+            return result.label == "neither"
+        } catch {
+            print("[ERROR] \(error.localizedDescription)")
+            return false
+        }
     }
     
     func deleteCommentButtonPressed() {

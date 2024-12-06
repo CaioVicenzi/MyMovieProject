@@ -53,10 +53,9 @@ struct MovieDetailView: View {
                 vm.loginAlertButtonPressed()
             }
         }
-        .alert("Are you sure you want to delete the comment?", isPresented: $vm.showAlertDeleteComment) {
-            // Action for deleting a comment (if required)
+        .alert("Your comment was found innapropriate...", isPresented: $vm.showAlertCommentInnapropriate) {
         } message: {
-            Text("This action can't be undone.")
+            Text("If you think that's unfair, you can talk to the developers.")
         }
         .fullScreenCover(isPresented: $vm.goLoginView) {
             LoginView()
