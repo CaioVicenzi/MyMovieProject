@@ -21,11 +21,12 @@ struct MovieDetailView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         Group {
                             descriptionSection(movie: movie)
-                        genreSection(genres: movie.genres)
-                        videoSection(movie: movie)
+                            genreSection(genres: movie.genres)
+                            videoSection(movie: movie)
+                            commentsSection
                         }
                         .padding(.horizontal)
-                        commentsSection
+                        
                     }
                     
                 } else {
@@ -155,7 +156,7 @@ struct MovieDetailView: View {
     }
     
     private func videoSection(movie: MovieDetail) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             Text("Watch Trailer")
                 .font(.headline)
                 .bold()
@@ -163,19 +164,24 @@ struct MovieDetailView: View {
             if let movieVideos = vm.movieVideos, !movieVideos.isEmpty {
                 ForEach(movieVideos, id: \.id) { video in
                     if let videoURL = video.youtubeURL {
-                        Button(action: {
-                            self.selectedVideoURL = videoURL
-                            self.showWebView = true
-                        }) {
-                            HStack {
+                        Button {
+                            selectedVideoURL = videoURL
+                            showWebView = true
+                        } label: {
+                            HStack(spacing: 8) {
                                 Image(systemName: "play.circle.fill")
                                     .resizable()
                                     .scaledToFit()
                                     .frame(height: 40)
+                                    .foregroundColor(.blue)
+                                
                                 Text("Watch \(video.name)")
+                                    .font(.body)
                                     .foregroundColor(.blue)
                             }
+                            .padding(.vertical, 6)
                         }
+                        .disabled(vm.isVideoLoading)
                     }
                 }
             } else {
@@ -184,8 +190,15 @@ struct MovieDetailView: View {
                     .foregroundColor(.secondary)
             }
         }
+        .padding(.vertical, 8)
+        .onAppear {
+            DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + 2) {
+                DispatchQueue.main.async {
+                    vm.isVideoLoading = true
+                }
+            }
+        }
     }
-
     
     private var commentsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -256,9 +269,10 @@ struct CommentCard: View {
                             .foregroundStyle(.secondary)
                     }
                     Text(comment.title)
-                        .foregroundColor(.secondary)
+                        .font(.body)
+                        .foregroundStyle(.primary)
                 }
-                .padding()
+                .padding(.horizontal)
             }
     }
 }
