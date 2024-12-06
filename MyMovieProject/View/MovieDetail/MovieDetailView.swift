@@ -238,12 +238,10 @@ struct MovieDetailView: View {
             Text("Comments")
                 .font(.headline)
                 .bold()
-                .padding(.horizontal)
             
             HStack {
                 TextField("I liked this movie because...", text: $vm.comment)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding(.horizontal)
                 
                 if !vm.comment.isEmpty {
                     Button {
@@ -267,10 +265,12 @@ struct MovieDetailView: View {
             } else {
                 List {
                     ForEach(vm.comments, id: \.title) { comment in
-                        CommentCard(comment: comment, isFromTheUser: comment.userID == self.vm.getCurrentUser().1)
+                        CommentCard(comment: comment, isFromTheUser: comment.userID == self.vm.getCurrentUserID())
                             .swipeActions {
-                                Button ("Delete", role: .destructive) {
-                                    vm.deleteComment(comment.id)
+                                if vm.getCurrentUserID() == comment.userID {
+                                    Button ("Delete", role: .destructive) {
+                                        vm.deleteComment(comment.id)
+                                    }
                                 }
                             }
                     }
@@ -279,6 +279,7 @@ struct MovieDetailView: View {
                 .listStyle(.plain)
             }
         }
+        .padding(.bottom)
     }
 }
 
