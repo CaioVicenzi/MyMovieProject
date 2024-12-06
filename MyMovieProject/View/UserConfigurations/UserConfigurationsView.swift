@@ -58,7 +58,9 @@ struct UserConfigurationsView: View {
         }
         .sheet(isPresented: $vm.showChangeNameView) {
             ChangeUsernameView {username in
-                vm.changeUsername(name: username)
+                Task {
+                    await vm.changeUsername(name: username)
+                }
             }
             .presentationDetents([.fraction(0.3)])
         }
