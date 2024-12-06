@@ -21,11 +21,12 @@ struct MovieDetailView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         Group {
                             descriptionSection(movie: movie)
-                        genreSection(genres: movie.genres)
-                        videoSection(movie: movie)
+                            genreSection(genres: movie.genres)
+                            videoSection(movie: movie)
+                            commentsSection
                         }
                         .padding(.horizontal)
-                        commentsSection
+                        
                     }
                     
                 } else {
@@ -162,8 +163,16 @@ struct MovieDetailView: View {
                 ForEach(movieVideos, id: \.id) { video in
                     if let videoURL = video.youtubeURL {
                         Button(action: {
+                            self.vm.isVideoLoading = true
                             self.selectedVideoURL = videoURL
-                            self.showWebView = true
+                            
+                            DispatchQueue.global(qos: .userInitiated).async {
+                                sleep(2) // Simulação de 2 segundos de carregamento
+                                DispatchQueue.main.async {
+                                    self.vm.isVideoLoading = false // Termina o carregamento
+                                    self.showWebView = true
+                                }
+                            }
                         }) {
                             HStack {
                                 Image(systemName: "play.circle.fill")
@@ -174,6 +183,7 @@ struct MovieDetailView: View {
                                     .foregroundColor(.blue)
                             }
                         }
+                        .disabled(vm.isVideoLoading)
                     }
                 }
             } else {
@@ -183,7 +193,6 @@ struct MovieDetailView: View {
             }
         }
     }
-
     
     private var commentsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -254,9 +263,10 @@ struct CommentCard: View {
                             .foregroundStyle(.secondary)
                     }
                     Text(comment.title)
-                        .foregroundColor(.secondary)
+                        .font(.body)
+                        .foregroundStyle(.primary)
                 }
-                .padding()
+                .padding(.horizontal)
             }
     }
 }
