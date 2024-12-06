@@ -10,11 +10,13 @@ class MovieDetailViewModel : ObservableObject {
     
     let db = Firestore.firestore()
     @Published var isLoading: Bool = false
+    @Published var isVideoLoading: Bool = false
     @Published var errorMessage: String?
     @Published var likes : Int = 0
     @Published var didUserLiked : Bool = false
     @Published var waiting : Bool = false
     @Published var movieDetail: MovieDetail?
+    @Published var movieVideos: [MovieVideo]?
     @Published var showAlertLogin : Bool = false
     @Published var goLoginView : Bool = false
     @Published var loginAlertTitle : String = ""
@@ -28,6 +30,7 @@ class MovieDetailViewModel : ObservableObject {
     @Published var comments : [Comment] = []
     @Published var comment : String = ""
     @Published var showAlertDeleteComment : Bool = false
+    @Published var showAlertCommentInnapropriate : Bool = false
     
     init(movieID: Int) {
         self.movieID = movieID
@@ -35,7 +38,7 @@ class MovieDetailViewModel : ObservableObject {
     
     func config (_ modelContext : ModelContext) {
         self.modelContext = modelContext
-        self.favoriteManager = FavoriteManager(movieID: movieID, userID: getCurrentUser().1)
+        self.favoriteManager = FavoriteManager(movieID: movieID, userID: getCurrentUserID())
     }
     
     func fetchComments () async  {
@@ -47,18 +50,30 @@ class MovieDetailViewModel : ObservableObject {
                 let data = document.data()
                 let content = data["content"] as! String
                 let movieID = data["movieID"] as! Int
-                let username = data["username"] as! String
                 let userID = data["userID"] as! String
                 let id = data["id"] as! String
+                let date = data["date"] as! Timestamp
                 
                 if movieID == self.movieID {
-                    comments.append(Comment(title: content, moovieID: movieID, username: username, userID: userID, id: id))
+                    await comments.append(Comment(title: content, moovieID: movieID, username: getUsernameByID(userID), userID: userID, id: id, date: date))
                 }
             }
         } catch {
             print("[ERROR] Couldn't fetch comment data: \(error)")
         }
-        self.comments = comments
+        
+        self.comments = comments.sorted { com1, com2 in
+            com1.date.dateValue() > com2.date.dateValue()
+        }
+    }
+    
+    func getUsernameByID (_ id : String) async -> String {
+        do {
+            return try await db.collection("user_data").whereField("id", isEqualTo: id).getDocuments().documents.first?.data()["name"] as? String  ?? ""
+        } catch {
+            print("[ERROR] Could not get user name from comment")
+            return ""
+        }
     }
     
     func saveComment (_ loginState : LoginStateService.LoginState) async {
@@ -68,17 +83,22 @@ class MovieDetailViewModel : ObservableObject {
             return
         }
         
+        guard isCommentAppropriate() else {
+            self.showAlertCommentInnapropriate = true
+            return
+        }
+        
         self.waiting = true
         
         do {
-            let userInfo = getCurrentUser()
+            let userID = getCurrentUserID()
             
             try await db.collection("comment").addDocument(data: [
                 "content": self.comment,
                 "id" : UUID().uuidString,
                 "movieID": movieID,
-                "userID": userInfo.1,
-                "username": userInfo.0
+                "userID": userID,
+                "date" : Timestamp(date: Date())
             ])
             
             await fetchComments()
@@ -87,6 +107,17 @@ class MovieDetailViewModel : ObservableObject {
         }
         self.waiting = false
         self.comment = ""
+    }
+    
+    func isCommentAppropriate() -> Bool {
+        do {
+            let model = try AggressionClassifier_5000()
+            let result = try model.prediction(text: comment)
+            return result.label == "neither"
+        } catch {
+            print("[ERROR] \(error.localizedDescription)")
+            return false
+        }
     }
     
     func deleteCommentButtonPressed() {
@@ -100,7 +131,7 @@ class MovieDetailViewModel : ObservableObject {
             }
             
             self.waiting = true
-
+            
             
             do {
                 let documents = try await db.collection("comment").whereField("id", isEqualTo: idComment).getDocuments()
@@ -118,18 +149,9 @@ class MovieDetailViewModel : ObservableObject {
         }
     }
     
-    func getCurrentUser () -> (String, String) {
+    func getCurrentUserID () -> String {
         let currentUser = Auth.auth().currentUser
-        
-        if let currentUser, let displayName = currentUser.displayName {
-            return (displayName, currentUser.uid)
-        }
-        
-        if let currentUser {
-            return ("", currentUser.uid)
-        }
-        
-        return ("", "")
+        return currentUser?.uid ?? ""
     }
     
     func fetchLikes () async {
@@ -150,7 +172,7 @@ class MovieDetailViewModel : ObservableObject {
             let data = document.data()
             if let usersThatLiked = data["usersThatLiked"] as? [String] {
                 self.likes = usersThatLiked.count
-                self.didUserLiked = usersThatLiked.contains(where: { string in string == self.getCurrentUser().1 })
+                self.didUserLiked = usersThatLiked.contains(where: { string in string == self.getCurrentUserID() })
             } else {
                 print("[ERROR] The data type was actually other than String...")
             }
@@ -187,7 +209,7 @@ class MovieDetailViewModel : ObservableObject {
     
     func like () async {
         self.waiting = true
-        let userID = getCurrentUser().1
+        let userID = getCurrentUserID()
         
         do {
             let snapshot = try await db.collection("movie")
@@ -210,13 +232,13 @@ class MovieDetailViewModel : ObservableObject {
         } catch {
             print("[ERROR] Erro na hora de dar like \(error.localizedDescription)")
         }
-         
+        
         self.waiting = false
     }
     
     func unlike () async {
         self.waiting = true
-        let userID = self.getCurrentUser().1
+        let userID = self.getCurrentUserID()
         
         do {
             let snapshot = try await db.collection("movie")
@@ -246,37 +268,12 @@ class MovieDetailViewModel : ObservableObject {
         self.waiting = false
     }
     
-    func fetchDetailMovie() async {
-        let url = URL(string: "https://api.themoviedb.org/3/movie/\(movieID)")!
-        var components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
-        let queryItems: [URLQueryItem] = [
-            URLQueryItem(name: "language", value: "en-US"),
-        ]
-        components.queryItems = components.queryItems.map { $0 + queryItems } ?? queryItems
-
-        var request = URLRequest(url: components.url!)
-        request.httpMethod = "GET"
-        request.timeoutInterval = 10
-        request.allHTTPHeaderFields = [
-            "accept": "application/json",
-            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYWRkMTc3ZWFlZWJjM2M1M2ZjZmM2OGNmY2ZiMmJkMyIsIm5iZiI6MTcxMDc4NDA4Ni43MDg5OTk5LCJzdWIiOiI2NWY4N2U1NmUxOTRiMDAxNjNiZjQxODYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.yMEfLcsm8uM6QgNiVq-TiNEvcDUWl3sqfxq2Vpe9V3E"
-        ]
-
-        do {
-            let (data, _) = try await URLSession.shared.data(for: request)
-            let decodedData = try JSONDecoder().decode(MovieDetail.self, from: data)
-            self.movieDetail = decodedData
-        } catch {
-            print("[ERROR] Failed to fetch movie details: \(error)")
-            self.errorMessage = "Failed to load movie details. Please try again."
-        }
-    }
-    
     func onLoadingView (_ modelContext : ModelContext) {
         Task {
             await fetchComments()
             await fetchLikes()
             await fetchDetailMovie()
+            await fetchMovieVideos()
             config(modelContext)
             favoriteManager?.config(modelContext)
             
@@ -307,6 +304,64 @@ class MovieDetailViewModel : ObservableObject {
             } catch {
                 print("[ERROR] Error unfavoriting: \(error.localizedDescription)")
             }
+        }
+    }
+    
+    func fetchDetailMovie() async {
+        let url = URL(string: "https://api.themoviedb.org/3/movie/\(movieID)")!
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+        let queryItems: [URLQueryItem] = [
+            URLQueryItem(name: "language", value: "en-US"),
+        ]
+        components.queryItems = components.queryItems.map { $0 + queryItems } ?? queryItems
+        
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 10
+        request.allHTTPHeaderFields = [
+            "accept": "application/json",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYWRkMTc3ZWFlZWJjM2M1M2ZjZmM2OGNmY2ZiMmJkMyIsIm5iZiI6MTcxMDc4NDA4Ni43MDg5OTk5LCJzdWIiOiI2NWY4N2U1NmUxOTRiMDAxNjNiZjQxODYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.yMEfLcsm8uM6QgNiVq-TiNEvcDUWl3sqfxq2Vpe9V3E"
+        ]
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let decodedData = try JSONDecoder().decode(MovieDetail.self, from: data)
+            self.movieDetail = decodedData
+        } catch {
+            print("[ERROR] Failed to fetch movie details: \(error)")
+            self.errorMessage = "Failed to load movie details. Please try again."
+        }
+    }
+    
+    func fetchMovieVideos() async {
+        let urlString = "https://api.themoviedb.org/3/movie/\(movieID)/videos"
+        
+        guard let url = URL(string: urlString) else {
+            print("[ERROR] Invalid URL.")
+            return
+        }
+        
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: true)!
+        let queryItems: [URLQueryItem] = [
+            URLQueryItem(name: "language", value: "en-US"),
+        ]
+        components.queryItems = components.queryItems ?? [] + queryItems
+        
+        var request = URLRequest(url: components.url!)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 10
+        request.allHTTPHeaderFields = [
+            "accept": "application/json",
+            "Authorization": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkYWRkMTc3ZWFlZWJjM2M1M2ZjZmM2OGNmY2ZiMmJkMyIsIm5iZiI6MTcxMDc4NDA4Ni43MDg5OTk5LCJzdWIiOiI2NWY4N2U1NmUxOTRiMDAxNjNiZjQxODYiLCJzY29wZXMiOlsiYXBpX3JlYWQiXSwidmVyc2lvbiI6MX0.yMEfLcsm8uM6QgNiVq-TiNEvcDUWl3sqfxq2Vpe9V3E"
+        ]
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            let movieVideosResponse = try JSONDecoder().decode(MovieVideosResponse.self, from: data)
+            self.movieVideos = movieVideosResponse.results
+        } catch {
+            print("[ERROR] Failed to fetch movie videos: \(error)")
+            self.errorMessage = "Failed to load movie videos. Please try again."
         }
     }
 }

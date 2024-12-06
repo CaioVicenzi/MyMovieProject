@@ -53,12 +53,15 @@ struct UserConfigurationsView: View {
         } message: {
             Text("This action can't be undone.")
         }
-        .fullScreenCover(isPresented: $vm.goOnboarding) {
+        .navigationDestination(isPresented: $vm.goOnboarding) {
             OnboardingView()
+                .navigationBarBackButtonHidden()
         }
         .sheet(isPresented: $vm.showChangeNameView) {
             ChangeUsernameView {username in
-                vm.changeUsername(name: username)
+                Task {
+                    await vm.changeUsername(name: username)
+                }
             }
             .presentationDetents([.fraction(0.3)])
         }

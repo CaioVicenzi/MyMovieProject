@@ -2,8 +2,12 @@ import SwiftUI
 
 struct MovieDetailView: View {
     @StateObject private var vm: MovieDetailViewModel
-    @EnvironmentObject private var loginStateService : LoginStateService
+    @EnvironmentObject private var loginStateService: LoginStateService
     @Environment(\.modelContext) var modelContext
+    
+    @State private var showWebView: Bool = false
+    @State private var isVideoSectionExpanded: Bool = false
+    @State private var selectedVideoURL: URL?
     
     init(movieID: Int) {
         _vm = StateObject(wrappedValue: MovieDetailViewModel(movieID: movieID))
@@ -16,11 +20,16 @@ struct MovieDetailView: View {
             ScrollView {
                 if let movie = vm.movieDetail {
                     VStack(alignment: .leading, spacing: 20) {
-                        descriptionSection(movie: movie)
-                        genreSection(genres: movie.genres)
-                        commentsSection
+                        Group {
+                            descriptionSection(movie: movie)
+                            genreSection(genres: movie.genres)
+                            collapsibleVideoSection(movie: movie)
+                            commentsSection
+                        }
+                        .padding(.horizontal)
+                        
                     }
-                    .padding(.horizontal)
+                    
                 } else {
                     ProgressView()
                         .padding()
@@ -40,26 +49,32 @@ struct MovieDetailView: View {
         .allowsHitTesting(!vm.waiting)
         .alert(vm.loginAlertTitle, isPresented: $vm.showAlertLogin) {
             Button("Continue", role: .cancel) {}
-            
             Button("Login") {
                 vm.loginAlertButtonPressed()
             }
         }
-        .alert("Are you sure you want to delete the comment?", isPresented: $vm.showAlertDeleteComment) {
-            //vm.deleteComment(comment.id)
-            
+        .alert("Your comment was found innapropriate...", isPresented: $vm.showAlertCommentInnapropriate) {
         } message: {
-            Text("This action can't be undone.")
+            Text("If you think that's unfair, you can talk to the developers.")
         }
         .fullScreenCover(isPresented: $vm.goLoginView) {
             LoginView()
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                favoriteButton
+            if vm.movieDetail != nil {
+                ToolbarItem(placement: .topBarTrailing) {
+                    favoriteButton
+                }
+            }
+        }
+        .sheet(isPresented: $showWebView) {
+            if let selectedURL = selectedVideoURL {
+                SafariViewControllerWrapper(url: selectedURL)
+                    .edgesIgnoringSafeArea(.all)
             }
         }
     }
+    
     
     private var headerView: some View {
         RoundedRectangle(cornerRadius: 30)
@@ -141,6 +156,82 @@ struct MovieDetailView: View {
         }
     }
     
+    private func collapsibleVideoSection(movie: MovieDetail) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Button(action: {
+                withAnimation {
+                    isVideoSectionExpanded.toggle()
+                }
+            }) {
+                HStack {
+                    Text("Watch Trailer")
+                        .font(.headline)
+                        .bold()
+                    Spacer()
+                    Image(systemName: isVideoSectionExpanded ? "chevron.down" : "chevron.right")
+                        .foregroundColor(.blue)
+                }
+            }
+            .padding(.vertical, 5)
+            
+            if isVideoSectionExpanded {
+                videoSection(movie: movie)
+                    .transition(.opacity)
+            }
+        }
+        .onAppear {
+            vm.isVideoLoading = true // Indica que o carregamento está começando
+            Task {
+                // Simule o carregamento (ou insira a lógica de carregamento real aqui)
+                try await Task.sleep(nanoseconds: 2_000_000_000)
+                DispatchQueue.main.async {
+                    vm.isVideoLoading = false // Carregamento concluído
+                }
+            }
+        }
+        
+    }
+    
+    
+    private func videoSection(movie: MovieDetail) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            
+            if vm.isVideoLoading {
+                ProgressView("Loading videos...")
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding()
+            } else {
+                if let movieVideos = vm.movieVideos, !movieVideos.isEmpty {
+                    ForEach(movieVideos, id: \.id) { video in
+                        if let videoURL = video.youtubeURL {
+                            Button {
+                                selectedVideoURL = videoURL
+                                showWebView = true
+                            } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "play.circle.fill")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(height: 40)
+                                        .foregroundColor(.blue)
+                                    
+                                    Text("Watch \(video.name)")
+                                        .font(.body)
+                                        .foregroundColor(.blue)
+                                }
+                                .padding(.vertical, 6)
+                            }
+                        }
+                    }
+                } else {
+                    Text("No trailers available.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+        }
+    }
+    
     private var commentsSection: some View {
         VStack(alignment: .leading, spacing: 15) {
             Text("Comments")
@@ -171,27 +262,29 @@ struct MovieDetailView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(vm.comments, id: \.title) { comment in
-                    CommentCard(comment: comment, isFromTheUser: comment.userID == self.vm.getCurrentUser().1)
-                        .overlay(alignment: .topTrailing, content: {
-                            if comment.userID == vm.getCurrentUser().1 {
-                                Button {
-                                    vm.deleteComment(comment.id)
-                                } label: {
-                                    Image(systemName: "trash.circle.fill")
-                                        .padding()
+                List {
+                    ForEach(vm.comments, id: \.title) { comment in
+                        CommentCard(comment: comment, isFromTheUser: comment.userID == self.vm.getCurrentUserID())
+                            .swipeActions {
+                                if vm.getCurrentUserID() == comment.userID {
+                                    Button ("Delete", role: .destructive) {
+                                        vm.deleteComment(comment.id)
+                                    }
                                 }
                             }
-                        })
+                    }
                 }
+                .frame(height: 400)
+                .listStyle(.plain)
             }
         }
+        .padding(.bottom)
     }
 }
 
 struct CommentCard: View {
     let comment: Comment
-    let isFromTheUser : Bool
+    let isFromTheUser: Bool
     
     var body: some View {
         RoundedRectangle(cornerRadius: 10)
@@ -199,13 +292,20 @@ struct CommentCard: View {
             .frame(height: 80)
             .overlay(alignment: .leading) {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text(comment.username)
-                        .bold()
-                        .foregroundStyle(isFromTheUser ? .purple : .primary)
+                    HStack {
+                        Text(comment.username)
+                            .bold()
+                            .foregroundStyle(isFromTheUser ? .purple : .primary)
+                        Spacer()
+                        Text(comment.date.dateValue().formatted(date: .numeric, time: .omitted))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     Text(comment.title)
-                        .foregroundColor(.secondary)
+                        .font(.body)
+                        .foregroundStyle(.primary)
                 }
-                .padding()
+                .padding(.horizontal)
             }
     }
 }

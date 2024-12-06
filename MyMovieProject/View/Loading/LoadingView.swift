@@ -5,7 +5,7 @@ struct LoadingView: View {
     @EnvironmentObject var loginStateService : LoginStateService
     
     var body: some View {
-        NavigationStack {
+        VStack {
             ProgressView("Carregando informações")
                 .onAppear(perform: {
                     let authUser = vm.verifyUserAuthenticated()
@@ -20,11 +20,15 @@ struct LoadingView: View {
                     vm.goHomeView = !vm.goSignInView
                 })
                 .fullScreenCover(isPresented: $vm.goHomeView) {
-                    HomeView()
-                        .navigationBarBackButtonHidden()
+                    NavigationStack {
+                        HomeView()
+                            .navigationBarBackButtonHidden()
+                    }
                 }
                 .fullScreenCover(isPresented: $vm.goSignInView, content: {
-                    OnboardingView()
+                    NavigationStack {
+                        OnboardingView()
+                    }
                 })
         }
         

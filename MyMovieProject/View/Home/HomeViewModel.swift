@@ -7,8 +7,11 @@ class HomeViewModel: ObservableObject {
     @Published var movies: [ApiResult] = []
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-    @Published var currentUserName : String = ""
     @Published var goLoginView : Bool = false
+    @Published var search : String = ""
+    
+    // uma variável que indica se os filmes favoritos estão sendo filtrados
+    @Published var favoriteMoviesFiltered : Bool = false
     
     @Published var idFavoriteMovies : [Int] = []
     
@@ -21,19 +24,6 @@ class HomeViewModel: ObservableObject {
     
     func configure(_ modelContext : ModelContext) {
         self.modelContext = modelContext
-    }
-
-    func getUser() {
-        let currentuser = Auth.auth().currentUser
-        
-        print("[DEBUG] the user is \(currentuser?.email ?? "[ERROR] no email")")
-        
-        if let username = currentuser?.displayName {
-            currentUserName = username
-        } else {
-            print("[ERROR] Couldn't get the username")
-            return
-        }
     }
     
     func fetchPopularMovies() {
@@ -61,7 +51,6 @@ class HomeViewModel: ObservableObject {
         self.configure(modelContext)
         if movies.isEmpty {
             fetchPopularMovies()
-            getUser()
         }
         self.fetchFavoriteMovies()
     }
@@ -91,5 +80,15 @@ class HomeViewModel: ObservableObject {
     
     func movieIsFavorited (_ idMovie : Int) -> Bool {
         self.idFavoriteMovies.contains(idMovie)
+    }
+    
+    
+    /// Função que verifica se deve mostrar o filme baseado se ele passa pelas condições de filtragem e de pesquisa.
+    func showMovie(movie : ApiResult) -> Bool {
+        let isAbleToPassTheFilter = !favoriteMoviesFiltered || movieIsFavorited(movie.id)
+        let movieTitleLowercased = movie.title.lowercased()
+        let isAbleToPassTheSearch = movieTitleLowercased.contains(search.lowercased()) || search.isEmpty
+        
+        return isAbleToPassTheFilter && isAbleToPassTheSearch
     }
 }

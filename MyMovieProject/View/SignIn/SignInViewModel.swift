@@ -7,8 +7,9 @@ final class SignInViewModel : ObservableObject {
     @Published var email : String = ""
     @Published var password : String = ""
     @Published var username : String = ""
+    @Published var repeatPassword : String = ""
+    
     // VARIÁVEIS DE CONTROLE DE FLUXO
-    @Published var presentLogIn : Bool = false
     @Published var goHome : Bool = false
     
     // VARIÁVEL QUE INFICA SE ESTÁ ACONTECENDO ALGUM PROCESSO ASSÍNCRONO
@@ -17,6 +18,8 @@ final class SignInViewModel : ObservableObject {
     // VARIÁVEIS RELACIONADAS AO ALERTA DE CAMPOS INVÁLIDOS.
     @Published var invalidFields : [String] = []
     @Published var showFieldAlert : Bool = false
+    
+    let db = Firestore.firestore()
     
     // Função quando o usuário aperta no botão de se cadastrar
     func signIn () {
@@ -51,7 +54,13 @@ final class SignInViewModel : ObservableObject {
                     self.showFieldAlert = true
                 } else {
                     let authDataResult = try await Auth.auth().createUser(withEmail: self.email, password: self.password).user
-                    authDataResult.displayName = self.username
+                    //authDataResult.displayName = self.username
+                    let idGenerated = authDataResult.uid
+                    try await self.db.collection("user_data").addDocument(data: [
+                        "id" : idGenerated,
+                        "name" : self.username
+                    ])
+                    
                     
                     try await Auth.auth().updateCurrentUser(authDataResult)
                     print("[DEBUG] New user created successfully.")
@@ -80,7 +89,7 @@ final class SignInViewModel : ObservableObject {
     }
     
     private func isPasswordValid() -> Bool {
-        return password.count >= 5
+        return password.count >= 5 && self.password == self.repeatPassword
     }
     
     private func isUsernameValid() -> Bool {

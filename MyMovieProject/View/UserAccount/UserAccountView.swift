@@ -12,9 +12,18 @@ struct UserAccountView: View {
     
     var body: some View {
         VStack (alignment: .leading) {
-            Text("Movies that you favorited: ")
-                .font(.headline)
-                .padding(.horizontal)
+            Group {
+                Text("Movies that you favorited: ")
+                    .font(.headline)
+                
+                if vm.favoriteMovies.isEmpty {
+                    Text("No movie favorited yet...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding(.horizontal)
+            
             List {
                 ForEach(vm.favoriteMovies) { favoriteMovie in
                     NavigationLink {
@@ -50,7 +59,7 @@ struct UserAccountView: View {
                 }
             }
         }
-        .navigationTitle(loginState.state == .ANONYMOUSLY_LOGGED || vm.getUserDisplayName() == "" ? "Welcome!" : "Welcome, \(vm.getUserDisplayName())!")
+        .navigationTitle("Dashboard")
     }
 }
 

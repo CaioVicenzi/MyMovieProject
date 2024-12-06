@@ -53,7 +53,7 @@ struct LoginView: View {
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 55)
-                        .background(Color.accentColor)
+                        .background(Color.purple)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding(.horizontal)
                         .padding(.bottom)
@@ -78,8 +78,9 @@ struct LoginView: View {
                 Spacer()
             }
             .navigationTitle("Login")
-            .fullScreenCover(isPresented: $vm.goHome) {
+            .navigationDestination(isPresented: $vm.goHome) {
                 HomeView()
+                    .navigationBarBackButtonHidden()
             }
             .alert("Não foi possível fazer o login", isPresented: $vm.showAlertLoginFailed) {}
             .overlay(content: {
