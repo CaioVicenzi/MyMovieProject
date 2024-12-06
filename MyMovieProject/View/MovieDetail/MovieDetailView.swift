@@ -62,8 +62,10 @@ struct MovieDetailView: View {
             LoginView()
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                favoriteButton
+            if vm.movieDetail != nil {
+                ToolbarItem(placement: .topBarTrailing) {
+                    favoriteButton
+                }
             }
         }
         .sheet(isPresented: $showWebView) {
