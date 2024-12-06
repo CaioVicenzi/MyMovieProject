@@ -48,19 +48,27 @@ class MovieDetailViewModel : ObservableObject {
                 let data = document.data()
                 let content = data["content"] as! String
                 let movieID = data["movieID"] as! Int
-                let username = data["username"] as! String
                 let userID = data["userID"] as! String
                 let id = data["id"] as! String
                 let date = data["date"] as! Timestamp
                 
                 if movieID == self.movieID {
-                    comments.append(Comment(title: content, moovieID: movieID, username: username, userID: userID, id: id, date: date))
+                    await comments.append(Comment(title: content, moovieID: movieID, username: getUsernameByID(userID), userID: userID, id: id, date: date))
                 }
             }
         } catch {
             print("[ERROR] Couldn't fetch comment data: \(error)")
         }
         self.comments = comments
+    }
+    
+    func getUsernameByID (_ id : String) async -> String {
+        do {
+            return try await db.collection("user_data").whereField("id", isEqualTo: id).getDocuments().documents.first?.data()["name"] as? String  ?? ""
+        } catch {
+            print("[ERROR] Could not get user name from comment")
+            return ""
+        }
     }
     
     func saveComment (_ loginState : LoginStateService.LoginState) async {

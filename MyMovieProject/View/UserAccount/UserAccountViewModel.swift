@@ -7,6 +7,7 @@ class UserAccountViewModel : ObservableObject {
     let db = Firestore.firestore()
     @Published var favoriteMovies : [FavoriteMovieModelAccountView] = []
     @Published var waiting : Bool = false
+    @Published var currentUserName : String = ""
     
     var modelContext : ModelContext? = nil
     
@@ -14,12 +15,22 @@ class UserAccountViewModel : ObservableObject {
         self.modelContext = modelContext
     }
     
-    func getUserDisplayName () -> String {
-        if let displayName = Auth.auth().currentUser?.displayName {
-            return displayName
-        } else {
-            print("[ERROR] Erro ao adquirir o nome do usuário.")
-            return ""
+    func getUserDisplayName () {
+        let uid = getUserID()
+        
+        Task {
+            do {
+                let documents = try await db.collection("user_data")
+                    .whereField("id", isEqualTo: uid)
+                    .getDocuments()
+                    .documents
+                
+                DispatchQueue.main.sync {
+                    self.currentUserName = documents.first?.data()["name"] as? String ?? ""
+                }
+            } catch {
+                print("[ERROR] Error fetching user name... \(error.localizedDescription)")
+            }
         }
     }
     
@@ -58,6 +69,7 @@ class UserAccountViewModel : ObservableObject {
     
     func onAppearView () {
         Task {
+            getUserDisplayName()
             await fetchAllFavoritedMoviesFromCurrentUser()
         }
     }
