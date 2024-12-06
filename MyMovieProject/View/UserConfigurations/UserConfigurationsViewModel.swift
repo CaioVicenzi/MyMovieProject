@@ -1,5 +1,6 @@
 import Foundation
 import FirebaseAuth
+import FirebaseFirestore
 
 class UserConfigurationsViewModel : ObservableObject {
     @Published var goOnboarding : Bool = false
@@ -7,7 +8,9 @@ class UserConfigurationsViewModel : ObservableObject {
     @Published var showAlertDeleteAccount : Bool = false
     @Published var showChangeNameView : Bool = false
     
-    func logOut () {
+    let db = Firestore.firestore()
+    
+    func logOut() {
         do {
             try Auth.auth().signOut()
             goOnboarding = true
@@ -16,32 +19,36 @@ class UserConfigurationsViewModel : ObservableObject {
         }
     }
     
-    func deleteAccount () {
+    func deleteAccount() {
         Auth.auth().currentUser?.delete()
         goOnboarding = true
     }
     
-    func getUsername () -> String {
-        if let username = Auth.auth().currentUser?.displayName {
-            return username
-        } else {
-            print("[ERROR] Couldn't get the username")
-            return ""
-        }
+    func getCurrentUserID() -> String {
+        return Auth.auth().currentUser?.uid ?? ""
     }
     
-    func changeUsername (name : String) {
+    func changeUsername(name : String) async {
         if name.count >= 4 {
             guard let currentUser = Auth.auth().currentUser else {
                 print("[ERROR] Could not get the currentUser")
                 return
             }
-            currentUser.displayName = name
-
-            Auth.auth().updateCurrentUser(currentUser)
+            do {
+                try await db.collection("user_data")
+                    .whereField("id", isEqualTo: getCurrentUserID())
+                    .getDocuments()
+                    .documents
+                    .first?
+                    .reference.updateData([
+                        "name" : name
+                    ])
+            } catch {
+                print("[ERROR] Error updating username \(error.localizedDescription)")
+            }
+            
         } else {
             print("[DEBUG] couldn't change displayName")
         }
     }
-    
 }

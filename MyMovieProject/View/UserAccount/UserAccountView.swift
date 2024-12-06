@@ -50,7 +50,7 @@ struct UserAccountView: View {
                 }
             }
         }
-        .navigationTitle(loginState.state == .ANONYMOUSLY_LOGGED || vm.getUserDisplayName() == "" ? "Welcome!" : "Welcome, \(vm.getUserDisplayName())!")
+        .navigationTitle(loginState.state == .ANONYMOUSLY_LOGGED || vm.currentUserName == "" ? "Welcome!" : "Welcome, \(vm.currentUserName)!")
     }
 }
 

@@ -18,6 +18,8 @@ final class SignInViewModel : ObservableObject {
     @Published var invalidFields : [String] = []
     @Published var showFieldAlert : Bool = false
     
+    let db = Firestore.firestore()
+    
     // Função quando o usuário aperta no botão de se cadastrar
     func signIn () {
         
@@ -51,7 +53,13 @@ final class SignInViewModel : ObservableObject {
                     self.showFieldAlert = true
                 } else {
                     let authDataResult = try await Auth.auth().createUser(withEmail: self.email, password: self.password).user
-                    authDataResult.displayName = self.username
+                    //authDataResult.displayName = self.username
+                    let idGenerated = authDataResult.uid
+                    try await self.db.collection("user_data").addDocument(data: [
+                        "id" : idGenerated,
+                        "name" : self.username
+                    ])
+                    
                     
                     try await Auth.auth().updateCurrentUser(authDataResult)
                     print("[DEBUG] New user created successfully.")
