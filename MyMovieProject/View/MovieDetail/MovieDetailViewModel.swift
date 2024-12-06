@@ -37,7 +37,7 @@ class MovieDetailViewModel : ObservableObject {
     
     func config (_ modelContext : ModelContext) {
         self.modelContext = modelContext
-        self.favoriteManager = FavoriteManager(movieID: movieID, userID: getCurrentUser().1)
+        self.favoriteManager = FavoriteManager(movieID: movieID, userID: getCurrentUserID())
     }
     
     func fetchComments () async  {
@@ -60,7 +60,10 @@ class MovieDetailViewModel : ObservableObject {
         } catch {
             print("[ERROR] Couldn't fetch comment data: \(error)")
         }
-        self.comments = comments
+        
+        self.comments = comments.sorted { com1, com2 in
+            com1.date.dateValue() > com2.date.dateValue()
+        }
     }
     
     func getUsernameByID (_ id : String) async -> String {
@@ -82,14 +85,13 @@ class MovieDetailViewModel : ObservableObject {
         self.waiting = true
         
         do {
-            let userInfo = getCurrentUser()
+            let userID = getCurrentUserID()
             
             try await db.collection("comment").addDocument(data: [
                 "content": self.comment,
                 "id" : UUID().uuidString,
                 "movieID": movieID,
-                "userID": userInfo.1,
-                "username": userInfo.0,
+                "userID": userID,
                 "date" : Timestamp(date: Date())
             ])
             
@@ -130,18 +132,9 @@ class MovieDetailViewModel : ObservableObject {
         }
     }
     
-    func getCurrentUser () -> (String, String) {
+    func getCurrentUserID () -> String {
         let currentUser = Auth.auth().currentUser
-        
-        if let currentUser, let displayName = currentUser.displayName {
-            return (displayName, currentUser.uid)
-        }
-        
-        if let currentUser {
-            return ("", currentUser.uid)
-        }
-        
-        return ("", "")
+        return currentUser?.uid ?? ""
     }
     
     func fetchLikes () async {
@@ -162,7 +155,7 @@ class MovieDetailViewModel : ObservableObject {
             let data = document.data()
             if let usersThatLiked = data["usersThatLiked"] as? [String] {
                 self.likes = usersThatLiked.count
-                self.didUserLiked = usersThatLiked.contains(where: { string in string == self.getCurrentUser().1 })
+                self.didUserLiked = usersThatLiked.contains(where: { string in string == self.getCurrentUserID() })
             } else {
                 print("[ERROR] The data type was actually other than String...")
             }
@@ -199,7 +192,7 @@ class MovieDetailViewModel : ObservableObject {
     
     func like () async {
         self.waiting = true
-        let userID = getCurrentUser().1
+        let userID = getCurrentUserID()
         
         do {
             let snapshot = try await db.collection("movie")
@@ -228,7 +221,7 @@ class MovieDetailViewModel : ObservableObject {
     
     func unlike () async {
         self.waiting = true
-        let userID = self.getCurrentUser().1
+        let userID = self.getCurrentUserID()
         
         do {
             let snapshot = try await db.collection("movie")
