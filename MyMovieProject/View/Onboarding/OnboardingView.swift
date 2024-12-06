@@ -4,7 +4,7 @@ struct OnboardingView: View {
     @StateObject var vm = OnboardingViewModel()
     
     var body: some View {
-        NavigationView {
+        VStack {
             VStack {
                 Spacer()
                 Text("Bem vindo!")
@@ -27,11 +27,11 @@ struct OnboardingView: View {
                     LoginView()
                         .navigationBarBackButtonHidden()
                 } label: {
-                    Text("Começar")
+                    Text("Start")
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 55)
-                        .background(Color.accentColor)
+                        .background(Color.purple)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .padding()
                     

@@ -6,7 +6,7 @@ struct HomeView: View {
     @Environment(\.modelContext) var modelContext
     
     var body: some View {
-        NavigationView {
+        VStack {
             VStack {
                 if vm.isLoading && vm.movies.isEmpty {
                     ProgressView("Carregando filmes...")
@@ -41,7 +41,7 @@ struct HomeView: View {
                         
                     List {
                         ForEach(vm.movies, id: \.id) { movie in
-                            if vm.favoriteMoviesFiltered == false || vm.movieIsFavorited(movie.id) {
+                            if  vm.showMovie(movie: movie) {
                                 NavigationLink {
                                     MovieDetailView(movieID: movie.id)
                                 } label: {
@@ -94,17 +94,15 @@ struct HomeView: View {
                         }
                     }
                     .listStyle(InsetGroupedListStyle())
+                    .searchable(text: $vm.search)
                 }
             }
             .navigationTitle("My Movie Project")
             .onAppear {
                 vm.onLoadView(modelContext)
             }
-            .fullScreenCover(isPresented: $vm.goLoginView, content: {
-                LoginView()
-            })
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: self.loginStateService.state == .ANONYMOUSLY_LOGGED ? .topBarLeading : .topBarTrailing) {
                     NavigationLink {
                         UserAccountView()
                     }label: {
@@ -114,8 +112,8 @@ struct HomeView: View {
                   
                 if self.loginStateService.state == .ANONYMOUSLY_LOGGED {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button ("Login") {
-                            vm.goLoginView = true
+                        NavigationLink ("Login") {
+                            LoginView()
                         }
                         .bold()
                     }

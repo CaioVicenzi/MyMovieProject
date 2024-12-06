@@ -7,8 +7,9 @@ final class SignInViewModel : ObservableObject {
     @Published var email : String = ""
     @Published var password : String = ""
     @Published var username : String = ""
+    @Published var repeatPassword : String = ""
+    
     // VARIÁVEIS DE CONTROLE DE FLUXO
-    @Published var presentLogIn : Bool = false
     @Published var goHome : Bool = false
     
     // VARIÁVEL QUE INFICA SE ESTÁ ACONTECENDO ALGUM PROCESSO ASSÍNCRONO
@@ -88,7 +89,7 @@ final class SignInViewModel : ObservableObject {
     }
     
     private func isPasswordValid() -> Bool {
-        return password.count >= 5
+        return password.count >= 5 && self.password == self.repeatPassword
     }
     
     private func isUsernameValid() -> Bool {

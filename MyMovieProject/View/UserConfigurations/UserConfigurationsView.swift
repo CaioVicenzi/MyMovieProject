@@ -53,8 +53,9 @@ struct UserConfigurationsView: View {
         } message: {
             Text("This action can't be undone.")
         }
-        .fullScreenCover(isPresented: $vm.goOnboarding) {
+        .navigationDestination(isPresented: $vm.goOnboarding) {
             OnboardingView()
+                .navigationBarBackButtonHidden()
         }
         .sheet(isPresented: $vm.showChangeNameView) {
             ChangeUsernameView {username in

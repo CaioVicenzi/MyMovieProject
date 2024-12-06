@@ -26,6 +26,13 @@ struct SignInView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .padding(.horizontal)
             
+            inputLabel("Repeat password")
+            SecureField("Password...", text: $vm.repeatPassword)
+                .padding()
+                .background(Color.gray.opacity(0.3))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .padding(.horizontal)
+            
             HStack {
                 Spacer()
                 NavigationLink("Already have an account? Log in") {
@@ -46,19 +53,17 @@ struct SignInView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 55)
-                    .background(Color.accentColor)
+                    .background(Color.purple)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding()
             }
             
             Spacer()
         }
-        .fullScreenCover(isPresented: $vm.presentLogIn, content: {
-            LoginView()
-        })
-        .fullScreenCover(isPresented: $vm.goHome, content: {
+        .navigationDestination(isPresented: $vm.goHome) {
             HomeView()
-        })
+                .navigationBarBackButtonHidden()
+        }
         .overlay(content: {
             if vm.waitingProcess {
                 ProgressView("authenticating...")

@@ -18,7 +18,7 @@ struct SuccessfullyResetView: View {
                 goLogin = true
             }
         }
-        .fullScreenCover(isPresented: $goLogin) {
+        .navigationDestination(isPresented: $goLogin) {
             LoginView()
         }
         

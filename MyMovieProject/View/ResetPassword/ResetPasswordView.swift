@@ -1,10 +1,3 @@
-//
-//  ResetPasswordView.swift
-//  MyMovieProject
-//
-//  Created by Caio Marques on 29/11/24.
-//
-
 import SwiftUI
 
 struct ResetPasswordView: View {
@@ -26,7 +19,7 @@ struct ResetPasswordView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 55)
-                    .background(Color.accentColor)
+                    .background(Color.purple)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.bottom)
             }
@@ -35,7 +28,7 @@ struct ResetPasswordView: View {
         }
         .padding(.horizontal)
         .navigationTitle("Reset Password")
-        .fullScreenCover(isPresented: $vm.goSuccessfullyResetView) {
+        .navigationDestination(isPresented: $vm.goSuccessfullyResetView) {
             SuccessfullyResetView()
         }
     }
