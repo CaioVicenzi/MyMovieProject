@@ -6,12 +6,13 @@ struct MovieDetailView: View {
     @Environment(\.modelContext) var modelContext
     
     @State private var showWebView: Bool = false
+    @State private var isVideoSectionExpanded: Bool = false
     @State private var selectedVideoURL: URL?
     
     init(movieID: Int) {
         _vm = StateObject(wrappedValue: MovieDetailViewModel(movieID: movieID))
     }
-    
+
     var body: some View {
         VStack {
             headerView
@@ -22,7 +23,7 @@ struct MovieDetailView: View {
                         Group {
                             descriptionSection(movie: movie)
                             genreSection(genres: movie.genres)
-                            videoSection(movie: movie)
+                            collapsibleVideoSection(movie: movie)
                             commentsSection
                         }
                         .padding(.horizontal)
@@ -72,6 +73,7 @@ struct MovieDetailView: View {
             }
         }
     }
+
     
     private var headerView: some View {
         RoundedRectangle(cornerRadius: 30)
@@ -153,12 +155,34 @@ struct MovieDetailView: View {
         }
     }
     
+    private func collapsibleVideoSection(movie: MovieDetail) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Button(action: {
+                withAnimation {
+                    isVideoSectionExpanded.toggle()
+                }
+            }) {
+                HStack {
+                    Text("Watch Trailer")
+                        .font(.headline)
+                        .bold()
+                    Spacer()
+                    Image(systemName: isVideoSectionExpanded ? "chevron.down" : "chevron.right")
+                        .foregroundColor(.blue)
+                }
+            }
+            .padding(.vertical, 5)
+            
+            if isVideoSectionExpanded {
+                videoSection(movie: movie)
+                    .transition(.opacity)
+            }
+        }
+    }
+
+    
     private func videoSection(movie: MovieDetail) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Watch Trailer")
-                .font(.headline)
-                .bold()
-            
             if let movieVideos = vm.movieVideos, !movieVideos.isEmpty {
                 ForEach(movieVideos, id: \.id) { video in
                     if let videoURL = video.youtubeURL {
